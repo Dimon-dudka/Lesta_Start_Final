@@ -55,8 +55,8 @@ void ALestaCharacter::BeginPlay() {
 	}
 }
 
-void ALestaCharacter::GetDamage(const double& DamageHP) {
-	HealthComp->BecomeDamage(DamageHP);
+void ALestaCharacter::GetDamage(const double& Damage) {
+	HealthComp->BecomeDamage(Damage);
 
 	//	HUD Update
 	if (ChangeHP.IsBound()) {

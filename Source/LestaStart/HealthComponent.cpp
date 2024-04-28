@@ -2,13 +2,19 @@
 
 UHealthComponent::UHealthComponent()
 {
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 
 	Health = 100.0;
 }
 
 void UHealthComponent::BecomeDamage(const double& BecomeHPDamage) {
 	Health -= BecomeHPDamage;
+
+	if (Health <= 0.0) {
+		if (GetNullHP.IsBound()) {
+			GetNullHP.Broadcast();
+		}
+	}
 }
 
 double  UHealthComponent::GetHP() const {
@@ -24,12 +30,6 @@ void UHealthComponent::BeginPlay()
 void UHealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	if (Health <= 0.0) {
-		if (GetNullHP.IsBound()) {
-			GetNullHP.Broadcast();
-		}
-	}
 }
 
 void UHealthComponent::SetHP(const double& HP) {

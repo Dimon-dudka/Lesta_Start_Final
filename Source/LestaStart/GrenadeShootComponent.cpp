@@ -4,6 +4,10 @@ UGrenadeShootComponent::UGrenadeShootComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
+	//	In user charachter needs to set this flag in true
+	//	In enemy - depends of enemy type
+	IsGrenade = true;
+
 	Damage = 50.0;
 	MaxDamageLen = 700.0;
 	GreandeMaxTime = 1.0;
@@ -13,6 +17,7 @@ UGrenadeShootComponent::UGrenadeShootComponent()
 	ReloadingFlag = false;
 	CurrentReloadingTime = 0.0;
 	GrenadeReloadingTime = 3.0;
+	AnimationSpeed = 1000;
 
 	CentereExplosion = { 0.0,0.0,0.0 };
 	FlagIsShoot = false;
@@ -44,6 +49,8 @@ void UGrenadeShootComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	if (!IsGrenade)return;
+
 	if (ReloadingFlag) {
 		CurrentReloadingTime += DeltaTime;
 
@@ -56,46 +63,52 @@ void UGrenadeShootComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 			if (IsReload.IsBound()) {
 				IsReload.Broadcast();
 			}
-
 		}
 		return;
 	}
 
 	if (FlagIsShoot && CurrentAnimationRadius <= MaxDamageLen && GrenadesCountUsed <= GrenadesCount) {
 
-		CurrentAnimationRadius += 15;
+		CurrentAnimationRadius += AnimationSpeed*DeltaTime;
 		DrawDebugSphere(GetWorld(), CentereExplosion, CurrentAnimationRadius, 40, FColor::Red, false, 0.2);
 
 		if (CurrentAnimationRadius > MaxDamageLen) {
 
 			TArray<FHitResult> Hits;
+
+			TSet<AActor*> HitActors;
+
 			FCollisionQueryParams CollisionParams;
-			//CollisionParams.AddIgnoredActor(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 			CollisionParams.AddIgnoredActor(GetOwner());
 
 			bool FlagFoundCollisions = GetWorld()->SweepMultiByChannel(Hits, CentereExplosion, CentereExplosion,
-				FQuat::Identity, ECC_Visibility, FCollisionShape::MakeSphere(MaxDamageLen), CollisionParams);
+				FQuat::Identity, ECC_PhysicsBody, FCollisionShape::MakeSphere(MaxDamageLen), CollisionParams);
 
 			if (FlagFoundCollisions) {
 				for (const FHitResult& HitResult : Hits)
 				{
 					AActor* HitActor = HitResult.GetActor();
-					if (HitActor && HitActor->IsA(ABoxActor::StaticClass())) {
-						ABoxActor* BoxTmp = Cast<ABoxActor>(HitResult.GetActor());
-						BoxTmp->GetDamage(Damage * DamageKoef);
-					}
-					else if (HitActor && HitActor->IsA(AEnemyActorBasic::StaticClass())) {
-						AEnemyActorBasic* EnemyTmp = Cast<AEnemyActorBasic>(HitResult.GetActor());
-						EnemyTmp->GetDamage(Damage * DamageKoef);
-					}
+
+					if (HitActors.Contains(HitActor))continue;
+
+					HitActors.Add(HitActor);
+
+					IActorInterface* ActorInterfaceTmp = Cast<IActorInterface>(HitResult.GetActor());
+
+					if (!ActorInterfaceTmp)continue;
+
+					ActorInterfaceTmp->GetDamage(Damage * DamageKoef);
 				}
 			}
-
 			//	Nulling all params and let them to be valid
 			CentereExplosion = { 0.0,0.0,0.0 };
 			FlagIsShoot = false;
 			CurrentAnimationRadius = 0.0;
 			DamageKoef = 0.0;
+
+			if (EndOfExpl.IsBound()) {
+				EndOfExpl.Broadcast();
+			}
 		}
 	}
 	else {

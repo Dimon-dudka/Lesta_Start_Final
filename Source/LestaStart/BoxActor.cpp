@@ -29,8 +29,8 @@ void ABoxActor::GetNullHPInfo() {
 	Mesh->DestroyComponent();
 }
 
-void ABoxActor::GetDamage(const double& DamageHP) {
-	Health->BecomeDamage(DamageHP);
+void ABoxActor::GetDamage(const double& Damage) {
+	Health->BecomeDamage(Damage);
 }
 
 void ABoxActor::BeginPlay()

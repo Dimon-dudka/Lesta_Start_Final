@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 
+#include "ActorInterface.h"
+
 #include "HealthComponent.h"
 #include "DestroyAnimationComponent.h"
 #include "Components/BoxComponent.h"
@@ -12,7 +14,7 @@
 #include "BoxActor.generated.h"
 
 UCLASS()
-class LESTASTART_API ABoxActor : public AActor
+class LESTASTART_API ABoxActor : public AActor, public IActorInterface
 {
 	GENERATED_BODY()
 	
@@ -43,7 +45,7 @@ protected:
 public:	
 
 	UFUNCTION()
-		void GetDamage(const double& DamageHP);
+		virtual void GetDamage(const double& Damage) override;
 
 	UFUNCTION()
 		void GetNullHPInfo();

@@ -7,6 +7,7 @@
 #include "InputAction.h"
 
 #include "Kismet/GameplayStatics.h"
+#include "../ActorInterface.h"
 
 #include "../HealthComponent.h"
 #include "../GrenadeShootComponent.h"
@@ -20,7 +21,7 @@
 class UCameraComponent;
 
 UCLASS()
-class LESTASTART_API ALestaCharacter : public ACharacter
+class LESTASTART_API ALestaCharacter : public ACharacter, public IActorInterface
 {
 	GENERATED_BODY()
 
@@ -40,6 +41,9 @@ public:
 
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
+	UFUNCTION()
+		virtual void GetDamage(const double& Damage) override;
+
 	UPROPERTY(EditDefaultsOnly)
 		TObjectPtr<UHealthComponent> HealthComp;
 
@@ -48,9 +52,6 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 		TObjectPtr<ULazerShootUserComponent> LazerComp;
-
-	UFUNCTION()
-		void GetDamage(const double& DamageHP);
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FReloadingDelegate, bool, ReloadingFlag);
 	FReloadingDelegate Reloading;

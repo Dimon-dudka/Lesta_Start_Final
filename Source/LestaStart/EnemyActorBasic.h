@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 
+#include "ActorInterface.h"
+
 #include "Components/BoxComponent.h"
 
 #include "HealthComponent.h"
@@ -13,13 +15,13 @@
 #include "DestroyAnimationComponent.h"
 #include "HPPrintComponent.h"
 #include "EnemyGuardComonent.h"
-#include "GrenadeEnemyComponent.h"
+#include "GrenadeShootComponent.h"
 #include "FollowingPlayerComponent.h"
 
 #include "EnemyActorBasic.generated.h"
 
 UCLASS()
-class LESTASTART_API AEnemyActorBasic : public AActor
+class LESTASTART_API AEnemyActorBasic : public AActor , public IActorInterface
 {
 	GENERATED_BODY()
 	
@@ -30,7 +32,7 @@ public:
 		TObjectPtr<UFollowingPlayerComponent> FollowingComp;
 
 	UPROPERTY(EditAnywhere)
-		TObjectPtr<UGrenadeEnemyComponent> GrenadeComp;
+		TObjectPtr<UGrenadeShootComponent> GrenadeComponent;
 
 	UPROPERTY(EditAnywhere)
 		TObjectPtr<UEnemyGuardComonent> GuardComp;
@@ -74,5 +76,5 @@ public:
 		void GetNullHPInfo();
 
 	UFUNCTION()
-		void GetDamage(const double & Damage);
+		virtual void GetDamage(const double& Damage) override;
 };

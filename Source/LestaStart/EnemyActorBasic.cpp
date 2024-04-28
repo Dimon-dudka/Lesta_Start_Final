@@ -24,10 +24,12 @@ AEnemyActorBasic::AEnemyActorBasic()
 	GuardComp = CreateDefaultSubobject<UEnemyGuardComonent>(TEXT("Guardian Behavior"));
 	GuardComp->NewPosDelegate.AddDynamic(this, &AEnemyActorBasic::GetNewLocation);
 
-	GrenadeComp = CreateDefaultSubobject<UGrenadeEnemyComponent>(TEXT("Grenade Component"));
+	GrenadeComponent = CreateDefaultSubobject<UGrenadeShootComponent>(TEXT("Grenade Component"));
+	GrenadeComponent->EndOfExpl.AddDynamic(this, &AEnemyActorBasic::GetDestroyed);
 
 	FollowingComp = CreateDefaultSubobject<UFollowingPlayerComponent>(TEXT("Following Component"));
-	FollowingComp->ExplosionStart.AddDynamic(GrenadeComp, &UGrenadeEnemyComponent::StartExplosion);
+	FollowingComp->ExplosionStart.AddDynamic(this, &AEnemyActorBasic::GetNullHPInfo);
+	//FollowingComp->ExplosionStart.AddDynamic(GrenadeComp, &UGrenadeShootComponent::StartShoot);
 	FollowingComp->ExplosionStart.AddDynamic(this, &AEnemyActorBasic::GetNullHPInfo);
 
 	LazerShoot = CreateDefaultSubobject<UShootLaserComponent>(TEXT("Lazer Shoot"));
@@ -54,9 +56,15 @@ void AEnemyActorBasic::GetDamage(const double& Damage) {
 void AEnemyActorBasic::GetNullHPInfo() {
 	LazerShoot->DestroyComponent();
 	PrintHP->DestroyComponent();
-	DestroyComp->StartAnimation();
-	GrenadeComp->StartExplosion();
 	Mesh->DestroyComponent();
+
+	if (!GrenadeComponent->IsGrenade) {
+		DestroyComp->StartAnimation();
+	}
+	else {
+		GrenadeComponent->StartShoot(1.0, GetActorLocation());
+	}
+	
 }
 
 void AEnemyActorBasic::BeginPlay()
@@ -70,7 +78,7 @@ void AEnemyActorBasic::BeginPlay()
 		FollowingComp->NewPosDelegate.AddDynamic(this, &AEnemyActorBasic::GetNewLocation);
 	}
 
-	FollowingComp->SetFollowingPlayer(GrenadeComp->FlagIsGrenade);
+	FollowingComp->SetFollowingPlayer(GrenadeComponent->IsGrenade);
 	FollowingComp->InitStartPosition(GetActorLocation());
 }
 

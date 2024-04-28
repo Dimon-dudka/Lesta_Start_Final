@@ -6,8 +6,7 @@
 #include "Components/ActorComponent.h"
 
 #include "Kismet/GameplayStatics.h"
-#include "BoxActor.h"
-#include "EnemyActorBasic.h"
+#include "ActorInterface.h"
 
 #include "GrenadeShootComponent.generated.h"
 
@@ -23,15 +22,24 @@ public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEndOfReloading);
 	FEndOfReloading IsReload;
 
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEndOfExplosion);
+	FEndOfExplosion EndOfExpl;
+
 	UPROPERTY(EditAnywhere)
 		int32 GrenadesCount;
 
 	UPROPERTY(EditAnywhere)
 		double GrenadeReloadingTime;
 
+	UPROPERTY(EditAnywhere)
+		bool IsGrenade;
+
 	//	Time of pressing button to maximize damage
 	UPROPERTY(EditAnywhere)
 		double GreandeMaxTime;
+
+	UPROPERTY(EditAnywhere)
+		int32 AnimationSpeed;
 
 	UPROPERTY(EditAnywhere)
 		double Damage;
