@@ -22,9 +22,17 @@ ALestaCharacter::ALestaCharacter()
 	GrenadeComp = CreateDefaultSubobject<UGrenadeShootComponent>(TEXT("Grenade"));
 	GrenadeComp->IsReload.AddDynamic(this, &ALestaCharacter::EndOfReload);
 
-	LazerComp = CreateDefaultSubobject<ULazerShootUserComponent>(TEXT("Lazer"));
+	//LazerComp = CreateDefaultSubobject<ULazerShootUserComponent>(TEXT("Lazer"));
+	//LazerComp->IsReload.AddDynamic(this, &ALestaCharacter::EndOfReload);
+
+	LazerComp = CreateDefaultSubobject<ULazerShootComponent>(TEXT("Lazer Component"));
 	LazerComp->IsReload.AddDynamic(this, &ALestaCharacter::EndOfReload);
-	
+
+	TraceComp = CreateDefaultSubobject<UTracePlayersComponent>(TEXT("Trace Component"));
+	TraceComp->HitDelegate.AddDynamic(LazerComp, &ULazerShootComponent::GetHit);
+
+	this->ShootingStatus.AddDynamic(LazerComp, &ULazerShootComponent::ShootStatus);
+	this->StartReload.AddDynamic(LazerComp, &ULazerShootComponent::StartReload);
 }
 
 void ALestaCharacter::BeginPlay() {
@@ -118,7 +126,11 @@ void ALestaCharacter::OnShootInput(const FInputActionInstance& InputActionInstan
 			break;
 
 		case WEAPON_TYPE::LAZER:
-			LazerComp->GetShooting(0);
+
+			if (ShootingStatus.IsBound()) {
+				ShootingStatus.Broadcast(0);
+			}
+
 			break;
 		}
 
@@ -133,14 +145,18 @@ void ALestaCharacter::OnShootInput(const FInputActionInstance& InputActionInstan
 
 		case WEAPON_TYPE::GRENADE:
 			if (GrenadeTimeCount < GrenadeComp->GetGrenadeMaxTime()) {
-				GrenadeTimeCount = InputActionInstance.GetElapsedTime()/ GrenadeComp->GetGrenadeMaxTime();
+				GrenadeTimeCount = InputActionInstance.GetElapsedTime() / GrenadeComp->GetGrenadeMaxTime();
 			}
 			GrenadeComp->GetGrenadeMaxTime() < GrenadeTimeCount ?
 				GrenadeTimeCount = GrenadeComp->GetGrenadeMaxTime() : GrenadeTimeCount;
 
 			break;
 		case WEAPON_TYPE::LAZER:
-			LazerComp->GetShooting(1);
+			
+			if (ShootingStatus.IsBound()) {
+				ShootingStatus.Broadcast(1);
+			}
+
 			break;
 		}
 		break;
@@ -170,7 +186,11 @@ void ALestaCharacter::OnReloadInput(const FInputActionInstance& InputActionInsta
 		GrenadeComp->StartReload();
 	}
 	else if (ChoisenWeapon == WEAPON_TYPE::LAZER) {
-		LazerComp->StartReload();
+		
+		if (StartReload.IsBound()) {
+			StartReload.Broadcast();
+		}
+
 	}
 
 }

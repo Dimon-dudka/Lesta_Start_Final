@@ -6,9 +6,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-
 #include "Kismet/GameplayStatics.h"
-
 #include "EnemyGuardComonent.generated.h"
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )

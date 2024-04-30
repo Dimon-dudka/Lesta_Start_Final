@@ -29,15 +29,16 @@ AEnemyActorBasic::AEnemyActorBasic()
 
 	FollowingComp = CreateDefaultSubobject<UFollowingPlayerComponent>(TEXT("Following Component"));
 	FollowingComp->ExplosionStart.AddDynamic(this, &AEnemyActorBasic::GetNullHPInfo);
-	//FollowingComp->ExplosionStart.AddDynamic(GrenadeComp, &UGrenadeShootComponent::StartShoot);
 	FollowingComp->ExplosionStart.AddDynamic(this, &AEnemyActorBasic::GetNullHPInfo);
 
-	LazerShoot = CreateDefaultSubobject<UShootLaserComponent>(TEXT("Lazer Shoot"));
+	LazerShootComp = CreateDefaultSubobject<ULazerShootComponent>(TEXT("Lazer Component"));
 
-	Tracer = CreateDefaultSubobject<UTraceComponent>(TEXT("Line Trace"));
-	Tracer->TraceResult.AddDynamic(LazerShoot, &UShootLaserComponent::Shoot);
-	Tracer->TraceResult.AddDynamic(GuardComp, &UEnemyGuardComonent::GetHitRes);
-	Tracer->TraceResult.AddDynamic(FollowingComp, &UFollowingPlayerComponent::GetTargetHit);
+	TraceComp = CreateDefaultSubobject<UTraceEnemiesComponent>(TEXT("Trace Component"));
+	TraceComp->TraceResult.AddDynamic(LazerShootComp, &ULazerShootComponent::GetHit);
+	TraceComp->TraceResult.AddDynamic(GuardComp, &UEnemyGuardComonent::GetHitRes);
+	TraceComp->TraceResult.AddDynamic(FollowingComp, &UFollowingPlayerComponent::GetTargetHit);
+
+	this->ShootStatus.AddDynamic(LazerShootComp, &ULazerShootComponent::ShootStatus);
 }
 
 void AEnemyActorBasic::GetNewLocation(FVector NewLocation) {
@@ -54,7 +55,7 @@ void AEnemyActorBasic::GetDamage(const double& Damage) {
 }
 
 void AEnemyActorBasic::GetNullHPInfo() {
-	LazerShoot->DestroyComponent();
+	LazerShootComp->DestroyComponent();
 	PrintHP->DestroyComponent();
 	Mesh->DestroyComponent();
 
@@ -64,7 +65,6 @@ void AEnemyActorBasic::GetNullHPInfo() {
 	else {
 		GrenadeComponent->StartShoot(1.0, GetActorLocation());
 	}
-	
 }
 
 void AEnemyActorBasic::BeginPlay()
@@ -73,6 +73,10 @@ void AEnemyActorBasic::BeginPlay()
 
 	PrintHP->SetupHealthPoints(Health->GetHP());
 	GuardComp->InitialSetup(GetActorLocation());
+
+	if (ShootStatus.IsBound()) {
+		ShootStatus.Broadcast(1);
+	}
 
 	if (!GuardComp->IsThisEnemyGuard) {
 		FollowingComp->NewPosDelegate.AddDynamic(this, &AEnemyActorBasic::GetNewLocation);

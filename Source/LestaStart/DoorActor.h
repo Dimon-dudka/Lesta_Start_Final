@@ -4,10 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-
 #include "Components/BoxComponent.h"
 #include "DoorMovementComponent.h"
-
 #include "DoorActor.generated.h"
 
 UCLASS()
@@ -44,5 +42,4 @@ protected:
 	UFUNCTION()
 		void CloseDoor(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 			UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-
 };

@@ -11,7 +11,10 @@
 
 #include "../HealthComponent.h"
 #include "../GrenadeShootComponent.h"
-#include "../LazerShootUserComponent.h"
+//#include "../LazerShootUserComponent.h"
+
+#include "../TracePlayersComponent.h"
+#include "../LazerShootComponent.h"
 
 #include "EnhancedInputSubsystems.h"
 #include "InputMappingContext.h"
@@ -26,6 +29,12 @@ class LESTASTART_API ALestaCharacter : public ACharacter, public IActorInterface
 	GENERATED_BODY()
 
 private:
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FShootingStatus, bool, Flag);
+	FShootingStatus ShootingStatus;
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FStartReload);
+	FStartReload StartReload;
 
 	enum class WEAPON_TYPE {
 		LAZER,
@@ -50,8 +59,14 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 		TObjectPtr<UGrenadeShootComponent> GrenadeComp;
 
+	//UPROPERTY(EditDefaultsOnly)
+		//TObjectPtr<ULazerShootUserComponent> LazerComp;
+
 	UPROPERTY(EditDefaultsOnly)
-		TObjectPtr<ULazerShootUserComponent> LazerComp;
+		TObjectPtr<UTracePlayersComponent> TraceComp;
+
+	UPROPERTY(EditDefaultsOnly)
+		TObjectPtr<ULazerShootComponent> LazerComp;
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FReloadingDelegate, bool, ReloadingFlag);
 	FReloadingDelegate Reloading;

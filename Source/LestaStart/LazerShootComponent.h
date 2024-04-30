@@ -1,26 +1,30 @@
-//	Provides user ability to shoot lazer to center view point
+//	Lazer component
+//	Its use FHitResults to shoot
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "ActorInterface.h"
+#include "LazerShootComponent.generated.h"
 
-#include "Kismet/GameplayStatics.h"
-#include "BoxActor.h"
-#include "EnemyActorBasic.h"
-
-#include "LazerShootUserComponent.generated.h"
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class LESTASTART_API ULazerShootUserComponent : public UActorComponent
+class LESTASTART_API ULazerShootComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
-	ULazerShootUserComponent();
+	ULazerShootComponent();
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEndOfReloading);
 	FEndOfReloading IsReload;
+
+	UPROPERTY(EditAnywhere)
+		bool MustShoot;
+
+	UPROPERTY(EditAnywhere)
+		bool IsPlayer;
 
 	UPROPERTY(EditAnywhere)
 		double MaxShootingTime;
@@ -35,19 +39,23 @@ public:
 		double MaxLength;
 
 protected:
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
 	virtual void BeginPlay() override;
-
-	bool ShootingFlag,IsReloading;
 
 	double CurrentShootingTime, CurrentReloadingTime;
 
+	FHitResult Hit;
+
+	bool ShootingFlag, IsReloading;
+
 public:	
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION()
-		void GetShooting(const bool& Shooting);
+		void GetHit(FHitResult HitRes);
 
 	UFUNCTION()
 		void StartReload();
+
+	UFUNCTION()
+		void ShootStatus(bool Flag);
 };

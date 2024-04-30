@@ -8,8 +8,8 @@ USpawnerComponent::USpawnerComponent()
 void USpawnerComponent::SpawningActor() {
 	if (GetSpawnTransform.IsBound() && SpawnActorType) {
 
-		FTransform Transform = GetSpawnTransform.Execute();
-		UWorld* World = GetWorld();
+		FTransform Transform{ GetSpawnTransform.Execute() };
+		UWorld* World{ GetWorld() };
 		World->SpawnActor<AActor>(SpawnActorType, Transform);
 	}
 }

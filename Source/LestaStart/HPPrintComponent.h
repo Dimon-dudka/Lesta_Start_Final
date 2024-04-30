@@ -4,10 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/SceneComponent.h"
-
-//#include "MathUtil.h"
 #include "Components/TextRenderComponent.h"
-
 #include "HPPrintComponent.generated.h"
 
 

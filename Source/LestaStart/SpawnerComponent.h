@@ -23,7 +23,7 @@ public:
 		FGetSpawnTransform GetSpawnTransform;
 
 	UPROPERTY(EditAnywhere)
-		AActor* spawnActor;
+		AActor* SpawnActor;
 
 	UFUNCTION()
 		void SpawningActor();

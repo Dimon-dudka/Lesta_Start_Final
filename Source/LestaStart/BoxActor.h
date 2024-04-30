@@ -4,13 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-
 #include "ActorInterface.h"
-
 #include "HealthComponent.h"
 #include "DestroyAnimationComponent.h"
 #include "Components/BoxComponent.h"
-
 #include "BoxActor.generated.h"
 
 UCLASS()

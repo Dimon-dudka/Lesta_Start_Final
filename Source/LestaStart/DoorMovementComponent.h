@@ -53,5 +53,4 @@ protected:
 	double CurrentPos;
 
 	bool StatusFlag;
-
 };

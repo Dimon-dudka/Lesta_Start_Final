@@ -35,7 +35,7 @@ void UHPPrintComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	TextRender->SetWorldLocation(GetOwner()->GetActorLocation() + FVector(0.0, 0.0, HeighAboveActor));
 
 	//	Rotation text to Player
-	FRotator UserView = GetWorld()->GetFirstPlayerController()->GetPawn()->GetActorRotation();
+	FRotator UserView{ GetWorld()->GetFirstPlayerController()->GetPawn()->GetActorRotation() };
 	UserView.Yaw += 180;
 	TextRender->SetWorldRotation(UserView);
 }

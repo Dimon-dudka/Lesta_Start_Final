@@ -4,11 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-
 #include "Components/BoxComponent.h"
 #include "SpawnPoint.h"
 #include "SpawnerComponent.h"
-
 #include "SpawnerActor.generated.h"
 
 UCLASS()

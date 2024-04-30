@@ -4,20 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-
 #include "ActorInterface.h"
-
 #include "Components/BoxComponent.h"
-
 #include "HealthComponent.h"
-#include "TraceComponent.h"
-#include "ShootLaserComponent.h"
+#include "TraceEnemiesComponent.h"
+#include "LazerShootComponent.h"
 #include "DestroyAnimationComponent.h"
 #include "HPPrintComponent.h"
 #include "EnemyGuardComonent.h"
 #include "GrenadeShootComponent.h"
 #include "FollowingPlayerComponent.h"
-
 #include "EnemyActorBasic.generated.h"
 
 UCLASS()
@@ -27,6 +23,9 @@ class LESTASTART_API AEnemyActorBasic : public AActor , public IActorInterface
 	
 public:	
 	AEnemyActorBasic();
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FShootStatus, bool, Flag);
+	FShootStatus ShootStatus;
 
 	UPROPERTY(EditAnywhere)
 		TObjectPtr<UFollowingPlayerComponent> FollowingComp;
@@ -53,10 +52,10 @@ public:
 		TObjectPtr<UStaticMeshComponent> Mesh;
 
 	UPROPERTY(EditAnywhere)
-		TObjectPtr<UShootLaserComponent> LazerShoot;
+		TObjectPtr<ULazerShootComponent> LazerShootComp;
 
 	UPROPERTY(EditAnywhere)
-		TObjectPtr<UTraceComponent> Tracer;
+		TObjectPtr<UTraceEnemiesComponent> TraceComp;
 
 protected:
 
