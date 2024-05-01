@@ -59,7 +59,7 @@ void ULazerShootComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
     if (Hit.Distance > MaxLength) return;
 
     DrawDebugLine(GetWorld(), Hit.TraceStart, Hit.ImpactPoint, FColor::Green, false, 0.001f, 0, 1.f);
-
+    
     if (Hit.bBlockingHit)
     {
         IActorInterface* ActorInterfaceTmp = Cast<IActorInterface>(Hit.GetActor());

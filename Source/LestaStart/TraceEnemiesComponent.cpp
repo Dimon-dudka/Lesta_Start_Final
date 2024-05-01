@@ -21,8 +21,13 @@ void UTraceEnemiesComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 		FVector TraceStart{ GetOwner()->GetActorLocation() }, TraceEnd{ Pawn->GetActorLocation() };
 		bool bBlockHit{ GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, ECC_Pawn) };
 
-		if (Hit.bBlockingHit && TraceResult.IsBound()) {
+		if (!TraceResult.IsBound())return;
+
+		if (Hit.bBlockingHit && Pawn==Hit.GetActor() ) {
 			TraceResult.Broadcast(Hit);
+		}
+		else if (Hit.bBlockingHit && Pawn != Hit.GetActor()) {
+			TraceResult.Broadcast({});
 		}
 	}
 }
