@@ -30,7 +30,7 @@ public:
 	UPROPERTY(EditAnywhere, Replicated)
 		TObjectPtr<UBoxComponent> Box;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 		double DestroyRadius;
 
 protected:
@@ -43,11 +43,11 @@ protected:
 
 public:	
 
-	//UFUNCTION(Server, Unreliable)
 	UFUNCTION()
 		virtual void GetDamage(const double& Damage) override;
 
-	UFUNCTION(Server, Unreliable)
+	//UFUNCTION(Server, Unreliable)
+	UFUNCTION(NetMulticast, Unreliable)
 		void GetNullHPInfo();
 
 	UFUNCTION(Server, Unreliable)

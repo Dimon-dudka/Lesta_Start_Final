@@ -31,7 +31,7 @@ void ADoorActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifeti
 
 void ADoorActor::MoveDoor_Implementation(FVector NewDoorPos) {
 
-	//if (!HasAuthority())return;
+	if (!HasAuthority())return;
 
 	Mesh->SetRelativeLocation(NewDoorPos);
 }

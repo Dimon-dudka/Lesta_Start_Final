@@ -1,10 +1,7 @@
 ﻿#include "LestaCharacter.h"
 #include "EnhancedInputComponent.h"
 #include "Camera/CameraComponent.h"
-
 #include "Net/UnrealNetwork.h"
-#include "Components/CapsuleComponent.h"
-#include "GameFramework/GameState.h"
 
 #include "../PlayerHUD.h"
 
@@ -65,9 +62,6 @@ void ALestaCharacter::BeginPlay() {
 
 	if (APlayerController* PC = GetController<APlayerController>()) {
 
-		//PC->ClientTravel(GetWorld()->GetAddressURL(), ETravelType::TRAVEL_Absolute);
-		//PC->ClientTravel(“IPADDRESS”, ETravelType::TRAVEL_Absolute);
-
 		//	Input System Setup
 		if (const ULocalPlayer* LocalPlayer = PC->GetLocalPlayer()) {
 			if (auto* InputSystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>()) {
@@ -88,8 +82,6 @@ void ALestaCharacter::BeginPlay() {
 				ChangeHP.AddDynamic(UserHUD, &APlayerHUD::SetTextHP);
 				ChangeWeapon.AddDynamic(UserHUD, &APlayerHUD::SetTextWeapon);
 				Reloading.AddDynamic(UserHUD, &APlayerHUD::SetReloadingText);
-
-				UE_LOG(LogInit, Error, TEXT("Setted Player Controller"));
 			}
 		}
 
@@ -100,8 +92,6 @@ void ALestaCharacter::BeginPlay() {
 			Reloading.Broadcast(false);
 		}
 	}
-
-	UE_LOG(LogInit, Error, TEXT("Begin Play"));
 }
 
 void ALestaCharacter::GetDamage(const double& Damage) {
@@ -121,20 +111,8 @@ void ALestaCharacter::ChangeHPHUD_Implementation(double HP) {
 void ALestaCharacter::KillPlayer_Implementation() {
 	//	Restart Game
 
-	SetHidden(true);
-	SetActorEnableCollision(false);
-
 	if (!HasAuthority())return;
 
-	UCapsuleComponent* Capsule = GetCapsuleComponent();
-	if (Capsule) {
-		Capsule->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	}
-
-	//APlayerController* UserController = Cast<APlayerController>(GetController());
-	//AGameStateBase* tmp = GetWorld()->GetGameState();
-	//tmp->OnDestroyed.Broadcast(this);
-	//GetController()->UnPossess();
 	Destroy();
 }
 

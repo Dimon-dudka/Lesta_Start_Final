@@ -12,7 +12,6 @@ ABoxActor::ABoxActor()
 	SetRootComponent(Box);
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-	//Mesh->SetIsReplicated(true);
 	Mesh->SetupAttachment(RootComponent);
 
 	Health = CreateDefaultSubobject<UHealthComponent>(TEXT("Health"));
@@ -27,9 +26,10 @@ ABoxActor::ABoxActor()
 void ABoxActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(ABoxActor, Health)
-	DOREPLIFETIME(ABoxActor, Box)
-	DOREPLIFETIME(ABoxActor, Mesh)
+	DOREPLIFETIME(ABoxActor, Health);
+	DOREPLIFETIME(ABoxActor, Box);
+	//DOREPLIFETIME(ABoxActor, Mesh);
+	DOREPLIFETIME(ABoxActor, DestroyRadius);
 }
 
 void ABoxActor::GetDestroyed_Implementation() {
@@ -41,10 +41,10 @@ void ABoxActor::GetDestroyed_Implementation() {
 
 void ABoxActor::GetNullHPInfo_Implementation() {
 
-	if (!HasAuthority())return;
-
 	DestroyAnimation->SetWorldLocation(Mesh->GetComponentLocation());
 	DestroyAnimation->StartAnimation();
+
+	if (!HasAuthority())return;
 	Mesh->DestroyComponent();
 }
 
