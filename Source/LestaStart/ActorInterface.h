@@ -19,5 +19,6 @@ class LESTASTART_API IActorInterface
 public:
 
 	UFUNCTION()
+	//UFUNCTION(Server, Unreliable)
 		virtual void GetDamage(const double& Damage) = 0;
 };

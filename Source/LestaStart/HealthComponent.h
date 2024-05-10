@@ -15,26 +15,31 @@ class LESTASTART_API UHealthComponent : public UActorComponent
 public:	
 	UHealthComponent();
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 		double Health;
 
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FGetHPValue, double, HP);
+	UPROPERTY(Replicated)
+		FGetHPValue GetHPValue;
+
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FGetNullHPDelegate);
-	FGetNullHPDelegate GetNullHP;
+	UPROPERTY(Replicated)
+		FGetNullHPDelegate GetNullHP;
 
 protected:
 	virtual void BeginPlay() override;
 
-public:	
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps)const override;
 
+public:	
 	//	Become damage API
-	UFUNCTION()
+	UFUNCTION(Server, Unreliable)
 		void BecomeDamage(const double& BecomeHPDamage);
 
 	//	Return HP for actor print
 	UFUNCTION()
 		double GetHP()const;
 
-	UFUNCTION()
+	UFUNCTION(Server, Unreliable)
 		void SetHP(const double& HP);	
 };

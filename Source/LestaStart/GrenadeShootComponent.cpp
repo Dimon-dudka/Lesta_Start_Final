@@ -1,4 +1,5 @@
 #include "GrenadeShootComponent.h"
+#include "Net/UnrealNetwork.h"
 
 UGrenadeShootComponent::UGrenadeShootComponent()
 {
@@ -7,6 +8,8 @@ UGrenadeShootComponent::UGrenadeShootComponent()
 	//	In user charachter needs to set this flag in true
 	//	In enemy - depends of enemy type
 	IsGrenade = true;
+
+	SetIsReplicated(true);
 
 	Damage = 50.0;
 	MaxDamageLen = 700.0;
@@ -25,11 +28,29 @@ UGrenadeShootComponent::UGrenadeShootComponent()
 	DamageKoef = 0.0;	//must be in range [0.0:1.0]
 }
 
+void UGrenadeShootComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps)const {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UGrenadeShootComponent, IsGrenade);
+	DOREPLIFETIME(UGrenadeShootComponent, Damage);
+	DOREPLIFETIME(UGrenadeShootComponent, MaxDamageLen);
+	DOREPLIFETIME(UGrenadeShootComponent, GreandeMaxTime);
+	DOREPLIFETIME(UGrenadeShootComponent, GrenadesCountUsed);
+	DOREPLIFETIME(UGrenadeShootComponent, GrenadesCount);
+	DOREPLIFETIME(UGrenadeShootComponent, ReloadingFlag);
+	DOREPLIFETIME(UGrenadeShootComponent, CurrentReloadingTime);
+	DOREPLIFETIME(UGrenadeShootComponent, GrenadeReloadingTime);
+	DOREPLIFETIME(UGrenadeShootComponent, CentereExplosion);
+	DOREPLIFETIME(UGrenadeShootComponent, FlagIsShoot);
+	DOREPLIFETIME(UGrenadeShootComponent, DamageKoef);
+	DOREPLIFETIME(UGrenadeShootComponent, EndOfExpl);
+}
+
 double UGrenadeShootComponent::GetGrenadeMaxTime() const noexcept{
 	return GreandeMaxTime;
 }
 
-void UGrenadeShootComponent::StartShoot(double UserDamageKoef, FVector PlayerStartShootPos) {
+void UGrenadeShootComponent::StartShoot_Implementation(double UserDamageKoef, FVector PlayerStartShootPos) {
 	GrenadesCountUsed += 1;
 	CentereExplosion = PlayerStartShootPos;
 	DamageKoef = UserDamageKoef;
@@ -41,7 +62,7 @@ void UGrenadeShootComponent::BeginPlay()
 	Super::BeginPlay();
 }
 
-void UGrenadeShootComponent::StartReload() {
+void UGrenadeShootComponent::StartReload_Implementation() {
 	ReloadingFlag = true;
 }
 
@@ -84,7 +105,7 @@ void UGrenadeShootComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 			bool FlagFoundCollisions = GetWorld()->SweepMultiByChannel(Hits, CentereExplosion, CentereExplosion,
 				FQuat::Identity, ECC_PhysicsBody, FCollisionShape::MakeSphere(MaxDamageLen), CollisionParams);
 
-			if (FlagFoundCollisions) {
+			if (FlagFoundCollisions&& GetOwner()->HasAuthority()) {
 				for (const FHitResult& HitResult : Hits)
 				{
 					AActor* HitActor = HitResult.GetActor();

@@ -18,12 +18,14 @@ public:
 
 	//	Return result of player trace
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTracedResult, FHitResult, Hit);
+	UPROPERTY(Replicated)
 	FTracedResult TraceResult;
 
 protected:
 	virtual void BeginPlay() override;
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
 };

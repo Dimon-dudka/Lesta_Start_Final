@@ -15,25 +15,29 @@ class LESTASTART_API ASpawnerActor : public AActor
 	GENERATED_BODY()
 
 private:
-	bool SpawnFlag;
+
+	UPROPERTY(Replicated)
+		bool SpawnFlag;
 	
 public:	
 	ASpawnerActor();
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-		USpawnerComponent* Spawner;
+	UPROPERTY(EditDefaultsOnly, Replicated)
+		TObjectPtr<USpawnerComponent> Spawner;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		USpawnPoint* SpawnPoint;
+	UPROPERTY(EditAnywhere, Replicated)
+		TObjectPtr<USpawnPoint> SpawnPoint;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-		UBoxComponent* Box;
+	UPROPERTY(EditDefaultsOnly, Replicated)
+		TObjectPtr<UBoxComponent> Box;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		UStaticMeshComponent* Mesh;
+	UPROPERTY(EditAnywhere)
+		TObjectPtr<UStaticMeshComponent> Mesh;
 
 protected:
 	virtual void Tick(float DeltaTime) override;
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps)const override;
 
 	virtual void BeginPlay() override;
 

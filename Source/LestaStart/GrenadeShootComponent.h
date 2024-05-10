@@ -18,31 +18,33 @@ public:
 
 	//	Return answer about end of reloading
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEndOfReloading);
-	FEndOfReloading IsReload;
+	UPROPERTY(Replicated)
+		FEndOfReloading IsReload;
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEndOfExplosion);
-	FEndOfExplosion EndOfExpl;
+	UPROPERTY(Replicated)
+		FEndOfExplosion EndOfExpl;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 		int32 GrenadesCount;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 		double GrenadeReloadingTime;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 		bool IsGrenade;
 
 	//	Time of pressing button to maximize damage
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 		double GreandeMaxTime;
 
 	UPROPERTY(EditAnywhere)
 		int32 AnimationSpeed;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 		double Damage;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 		double MaxDamageLen;
 
 protected:
@@ -50,22 +52,36 @@ protected:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 		FActorComponentTickFunction* ThisTickFunction) override;
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps)const override;
+
 	virtual void BeginPlay() override;
 
-	FVector CentereExplosion;
+	UPROPERTY(Replicated)
+		FVector CentereExplosion;
 
-	bool FlagIsShoot,ReloadingFlag;
+	UPROPERTY(Replicated)
+		bool FlagIsShoot;
+
+	UPROPERTY(Replicated)
+		bool ReloadingFlag;
 	
-	double CurrentAnimationRadius, DamageKoef, CurrentReloadingTime;
+	double CurrentAnimationRadius;
 
-	int32 GrenadesCountUsed;
+	UPROPERTY(Replicated)
+		double DamageKoef;
+
+	UPROPERTY(Replicated)
+		double CurrentReloadingTime;
+
+	UPROPERTY(Replicated)
+		int32 GrenadesCountUsed;
 
 public:	
 
-	UFUNCTION()
+	UFUNCTION(Server,Unreliable)
 		void StartShoot(double UserDamageKoef,FVector PlayerStartShootPos);
 
-	UFUNCTION()
+	UFUNCTION(Server, Unreliable)
 		void StartReload();
 
 	//	Returns time of pressing button to maximize damage

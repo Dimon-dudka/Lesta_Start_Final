@@ -1,4 +1,5 @@
 #include "HPPrintComponent.h"
+#include "Net/UnrealNetwork.h"
 
 UHPPrintComponent::UHPPrintComponent()
 {
@@ -18,7 +19,7 @@ UHPPrintComponent::UHPPrintComponent()
 	SetupHealthPoints(0);
 }
 
-void UHPPrintComponent::SetupHealthPoints(const double& HP) {
+void UHPPrintComponent::SetupHealthPoints(double HP) {
 	TextRender->SetText(FText::FromString(LexToSanitizedString(((static_cast<int>(HP))/5)*5) + " HP"));
 }
 
@@ -32,10 +33,15 @@ void UHPPrintComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	TextRender->SetWorldLocation(GetOwner()->GetActorLocation() + FVector(0.0, 0.0, HeighAboveActor));
+	APlayerController* LocalPlayerController = GetWorld()->GetFirstPlayerController();
 
-	//	Rotation text to Player
-	FRotator UserView{ GetWorld()->GetFirstPlayerController()->GetPawn()->GetActorRotation() };
-	UserView.Yaw += 180;
-	TextRender->SetWorldRotation(UserView);
+	if (LocalPlayerController)
+	{
+		FRotator PlayerRotation = LocalPlayerController->GetControlRotation();
+		FRotator TextRenderRotation = PlayerRotation;
+		TextRenderRotation.Yaw += 180; 
+
+		TextRender->SetWorldLocation(GetOwner()->GetActorLocation() + FVector(0.0f, 0.0f, HeighAboveActor));
+		TextRender->SetWorldRotation(TextRenderRotation);
+	}
 }

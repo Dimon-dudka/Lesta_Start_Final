@@ -15,21 +15,23 @@ class LESTASTART_API USpawnerComponent : public UActorComponent
 public:
 	USpawnerComponent();
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere,Replicated)
 		UClass* SpawnActorType {nullptr};
 
 	DECLARE_DYNAMIC_DELEGATE_RetVal(FTransform, FGetSpawnTransform);
-	UPROPERTY()
+	UPROPERTY(Replicated)
 		FGetSpawnTransform GetSpawnTransform;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 		AActor* SpawnActor;
 
-	UFUNCTION()
+	UFUNCTION(Server,Unreliable)
 		void SpawningActor();
 
 protected:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps)const override;
 
 	virtual void BeginPlay() override;
 };

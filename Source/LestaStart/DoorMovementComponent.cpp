@@ -1,8 +1,11 @@
 #include "DoorMovementComponent.h"
+#include "Net/UnrealNetwork.h"
 
 UDoorMovementComponent::UDoorMovementComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+
+	SetIsReplicatedByDefault(true);
 
 	CurrentPos = 0.0;
 	StatusFlag = false;
@@ -10,16 +13,28 @@ UDoorMovementComponent::UDoorMovementComponent()
 	SpeedKoef = 50.0;
 }
 
-void UDoorMovementComponent::InitialSetup(const FVector& pos) {
+void UDoorMovementComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UDoorMovementComponent, SpeedKoef);
+	DOREPLIFETIME(UDoorMovementComponent, ActorInitialPosition);
+	DOREPLIFETIME(UDoorMovementComponent, ActorCurrentPosition);
+	DOREPLIFETIME(UDoorMovementComponent, MaxLen);
+	DOREPLIFETIME(UDoorMovementComponent, CurrentPos);
+	DOREPLIFETIME(UDoorMovementComponent, StatusFlag);
+	DOREPLIFETIME(UDoorMovementComponent, DoorPos);
+}
+
+void UDoorMovementComponent::InitialSetup_Implementation(const FVector& pos) {
 	ActorInitialPosition = pos;
 	ActorCurrentPosition = pos;
 }
 
-void UDoorMovementComponent::OpenClose(const bool& DoorStatus) {
+void UDoorMovementComponent::OpenClose_Implementation(bool DoorStatus) {
 	StatusFlag = DoorStatus;
 }
 
-void UDoorMovementComponent::SetupLengthOfDoorMove(const double& Length) {
+void UDoorMovementComponent::SetupLengthOfDoorMove_Implementation(const double& Length) {
 	MaxLen = Length;
 }
 

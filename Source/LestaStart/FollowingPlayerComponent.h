@@ -17,19 +17,21 @@ public:
 
 	//	Send Start Explosion request
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FStartOfExplosion);
+	UPROPERTY(Replicated)
 	FStartOfExplosion ExplosionStart;
 
 	//	Returns new calculated position
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FReturnNewPosition, FVector, NewPos);
+	UPROPERTY(Replicated)
 	FReturnNewPosition NewPosDelegate;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 		double SpeedOfRunEnemy;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 		double VisibilityOfPlayer;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 		double DistanceOfStartExplosion;
 
 protected:
@@ -37,24 +39,36 @@ protected:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 		FActorComponentTickFunction* ThisTickFunction) override;
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 	virtual void BeginPlay() override;
 
-	bool IsFollowPlayerFlag,IsAlreadyExplosion;
+	UPROPERTY(Replicated)
+	bool IsFollowPlayerFlag;
 
+	UPROPERTY(Replicated)
+	bool IsAlreadyExplosion;
+
+	UPROPERTY(Replicated)
 	FHitResult Hit;
 
-	FVector3d  CurrentPos, TargetPos;	
+	UPROPERTY(Replicated)
+	FVector3d  CurrentPos;	
 
+	UPROPERTY(Replicated)
+	FVector3d TargetPos;
+
+	UPROPERTY(Replicated)
 	FVector2D CalculationPos;
 
 public:	
 
-	UFUNCTION()
+	UFUNCTION(Server,Unreliable)
 		void SetFollowingPlayer(bool Flag);
 
-	UFUNCTION()
+	UFUNCTION(Server, Unreliable)
 		void GetTargetHit(FHitResult HitRes);
 
-	UFUNCTION()
+	UFUNCTION(Server, Unreliable)
 		void InitStartPosition(FVector3d NewPos);
 };

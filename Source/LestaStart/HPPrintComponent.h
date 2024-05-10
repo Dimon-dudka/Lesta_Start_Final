@@ -26,7 +26,6 @@ public:
 		TObjectPtr<UTextRenderComponent> TextRender;
 
 protected:
-
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	virtual void BeginPlay() override;
@@ -34,5 +33,5 @@ protected:
 public:	
 
 	UFUNCTION()
-		void SetupHealthPoints(const double& HP);
+		void SetupHealthPoints(double HP);
 };

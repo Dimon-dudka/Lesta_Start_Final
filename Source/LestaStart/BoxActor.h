@@ -21,13 +21,13 @@ public:
 	UPROPERTY(EditAnywhere)
 		TObjectPtr<UDestroyAnimationComponent> DestroyAnimation;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere,Replicated)
 		TObjectPtr<UHealthComponent> Health;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 		TObjectPtr<UStaticMeshComponent> Mesh;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 		TObjectPtr<UBoxComponent> Box;
 
 	UPROPERTY(EditAnywhere)
@@ -39,14 +39,17 @@ protected:
 
 	virtual void Tick(float DeltaTime) override;
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 public:	
 
+	//UFUNCTION(Server, Unreliable)
 	UFUNCTION()
 		virtual void GetDamage(const double& Damage) override;
 
-	UFUNCTION()
+	UFUNCTION(Server, Unreliable)
 		void GetNullHPInfo();
 
-	UFUNCTION()
+	UFUNCTION(Server, Unreliable)
 		void GetDestroyed();
 };

@@ -1,13 +1,27 @@
 #include "HealthComponent.h"
+#include "Net/UnrealNetwork.h"
 
 UHealthComponent::UHealthComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 
+	SetIsReplicatedByDefault(true);
+
 	Health = 100.0;
 }
 
-void UHealthComponent::BecomeDamage(const double& BecomeHPDamage) {
+void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps)const {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UHealthComponent, Health);
+	DOREPLIFETIME(UHealthComponent, GetHPValue);
+	DOREPLIFETIME(UHealthComponent, GetNullHP);
+}
+
+void UHealthComponent::BecomeDamage_Implementation(const double& BecomeHPDamage) {
+
+	if (!GetOwner()->HasAuthority())return;
+
 	Health -= BecomeHPDamage;
 
 	if (Health <= 0.0) {
@@ -15,9 +29,14 @@ void UHealthComponent::BecomeDamage(const double& BecomeHPDamage) {
 			GetNullHP.Broadcast();
 		}
 	}
+	else {
+		if (GetHPValue.IsBound()) {
+			GetHPValue.Broadcast(Health);
+		}
+	}
 }
 
-double  UHealthComponent::GetHP() const {
+double UHealthComponent::GetHP() const {
 	return Health;
 }
 
@@ -26,12 +45,6 @@ void UHealthComponent::BeginPlay()
 	Super::BeginPlay();
 }
 
-
-void UHealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-}
-
-void UHealthComponent::SetHP(const double& HP) {
+void UHealthComponent::SetHP_Implementation(const double& HP) {
 	Health = HP;
 }

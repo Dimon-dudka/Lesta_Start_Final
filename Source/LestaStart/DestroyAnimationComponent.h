@@ -23,6 +23,7 @@ public:
 	UPROPERTY(EditAnywhere)
 		double ExplosionRadius;
 
+	//UFUNCTION(Client,Unreliable)
 	UFUNCTION()
 		void StartAnimation();
 

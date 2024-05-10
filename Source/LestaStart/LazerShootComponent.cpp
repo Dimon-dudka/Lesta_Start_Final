@@ -1,8 +1,11 @@
 #include "LazerShootComponent.h"
+#include "Net/UnrealNetwork.h"
 
 ULazerShootComponent::ULazerShootComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+
+    SetIsReplicatedByDefault(true);
 
     ShootingFlag = false;
 
@@ -21,12 +24,29 @@ ULazerShootComponent::ULazerShootComponent()
 }
 
 
+void ULazerShootComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps)const {
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+    DOREPLIFETIME(ULazerShootComponent, ShootingFlag);
+    DOREPLIFETIME(ULazerShootComponent, IsPlayer);
+    DOREPLIFETIME(ULazerShootComponent, MustShoot);
+    DOREPLIFETIME(ULazerShootComponent, Damage);
+    DOREPLIFETIME(ULazerShootComponent, MaxLength);
+    DOREPLIFETIME(ULazerShootComponent, MaxShootingTime);
+    DOREPLIFETIME(ULazerShootComponent, CurrentShootingTime);
+    DOREPLIFETIME(ULazerShootComponent, IsReloading);
+    DOREPLIFETIME(ULazerShootComponent, ReloadingTime);
+    DOREPLIFETIME(ULazerShootComponent, CurrentReloadingTime);
+    DOREPLIFETIME(ULazerShootComponent, Hit);
+    DOREPLIFETIME(ULazerShootComponent, IsReload);
+}
+
 void ULazerShootComponent::BeginPlay()
 {
 	Super::BeginPlay();
 }
 
-void ULazerShootComponent::ShootStatus(bool Flag) {
+void ULazerShootComponent::ShootStatus_Implementation(bool Flag) {
     ShootingFlag = Flag;
 }
 
@@ -36,7 +56,7 @@ void ULazerShootComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 
     if (!MustShoot)return;
 
-    if (IsReloading) {
+    if (IsReloading&& GetOwner()->HasAuthority()) {
 
         CurrentReloadingTime += DeltaTime;
 
@@ -46,6 +66,7 @@ void ULazerShootComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
             IsReloading = false;
 
             if (IsReload.IsBound()) {
+
                 IsReload.Broadcast();
             }
         }
@@ -54,12 +75,14 @@ void ULazerShootComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 
     if (!ShootingFlag || CurrentShootingTime >= MaxShootingTime || !Hit.IsValidBlockingHit()) return;
 
-    if(IsPlayer)CurrentShootingTime += DeltaTime;
+    if (IsPlayer)CurrentShootingTime += DeltaTime;
 
     if (Hit.Distance > MaxLength) return;
 
     DrawDebugLine(GetWorld(), Hit.TraceStart, Hit.ImpactPoint, FColor::Green, false, 0.001f, 0, 1.f);
-    
+
+    if (!GetOwner()->HasAuthority())return;
+
     if (Hit.bBlockingHit)
     {
         IActorInterface* ActorInterfaceTmp = Cast<IActorInterface>(Hit.GetActor());
@@ -67,15 +90,15 @@ void ULazerShootComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
         if (!ActorInterfaceTmp)return;
 
         ActorInterfaceTmp->GetDamage(Damage * DeltaTime);
-    }
+    }    
 }
 
 
-void ULazerShootComponent::GetHit(FHitResult HitRes) {
+void ULazerShootComponent::GetHit_Implementation(FHitResult HitRes) {
 	Hit = HitRes;
 }
 
 
-void ULazerShootComponent::StartReload() {
+void ULazerShootComponent::StartReload_Implementation() {
     IsReloading = true;
 }

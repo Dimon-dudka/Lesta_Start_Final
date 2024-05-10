@@ -4,6 +4,7 @@
 void ALestaPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+
 	if (const ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(Player))
 	{
 		if (auto* InputSystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())

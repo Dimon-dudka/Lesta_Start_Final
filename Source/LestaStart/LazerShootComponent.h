@@ -18,44 +18,56 @@ public:
 	ULazerShootComponent();
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEndOfReloading);
+	UPROPERTY(Replicated)
 	FEndOfReloading IsReload;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 		bool MustShoot;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 		bool IsPlayer;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 		double MaxShootingTime;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 		double ReloadingTime;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 		double Damage;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 		double MaxLength;
 
 protected:
 	virtual void BeginPlay() override;
 
-	double CurrentShootingTime, CurrentReloadingTime;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps)const override;
 
-	FHitResult Hit;
+	UPROPERTY(Replicated)
+		double CurrentShootingTime;
 
-	bool ShootingFlag, IsReloading;
+	UPROPERTY(Replicated)
+		double CurrentReloadingTime;
+
+	UPROPERTY(Replicated)
+		FHitResult Hit;
+
+	UPROPERTY(Replicated)
+		bool ShootingFlag;
+
+	UPROPERTY(Replicated)
+		bool IsReloading;
 
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	UFUNCTION()
+	UFUNCTION(Server, Unreliable)
 		void GetHit(FHitResult HitRes);
 
-	UFUNCTION()
+	UFUNCTION(Server, Unreliable)
 		void StartReload();
 
-	UFUNCTION()
+	UFUNCTION(Server, Unreliable)
 		void ShootStatus(bool Flag);
 };

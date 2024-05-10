@@ -5,23 +5,23 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputAction.h"
-
 #include "Kismet/GameplayStatics.h"
 #include "../ActorInterface.h"
-
 #include "../HealthComponent.h"
 #include "../GrenadeShootComponent.h"
-//#include "../LazerShootUserComponent.h"
-
 #include "../TracePlayersComponent.h"
 #include "../LazerShootComponent.h"
-
 #include "EnhancedInputSubsystems.h"
 #include "InputMappingContext.h"
-
 #include "LestaCharacter.generated.h"
 
 class UCameraComponent;
+
+UENUM()
+enum class WEAPON_TYPE {
+	LAZER,
+	GRENADE,
+};
 
 UCLASS()
 class LESTASTART_API ALestaCharacter : public ACharacter, public IActorInterface
@@ -31,42 +31,46 @@ class LESTASTART_API ALestaCharacter : public ACharacter, public IActorInterface
 private:
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FShootingStatus, bool, Flag);
+	UPROPERTY(Replicated)
 	FShootingStatus ShootingStatus;
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FStartReload);
+	UPROPERTY(Replicated)
 	FStartReload StartReload;
 
-	enum class WEAPON_TYPE {
-		LAZER,
-		GRENADE,
-	};
+	UPROPERTY(Replicated)
+	bool IsShooting;
 
-	bool IsShooting,IsReloading;
+	UPROPERTY(Replicated)
+	bool IsReloading;
 
+	UPROPERTY(Replicated)
 	WEAPON_TYPE ChoisenWeapon;
+
+	UPROPERTY(VisibleAnywhere, Category = "Player")
+		APlayerController* UserPlayerController;
 
 public:
 	ALestaCharacter();
 
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps)const override;
+
 	UFUNCTION()
 		virtual void GetDamage(const double& Damage) override;
 
-	UPROPERTY(EditDefaultsOnly)
-		TObjectPtr<UHealthComponent> HealthComp;
+	UPROPERTY(EditDefaultsOnly, Replicated)
+		TObjectPtr<UHealthComponent> HealthComponent;
 
-	UPROPERTY(EditDefaultsOnly)
-		TObjectPtr<UGrenadeShootComponent> GrenadeComp;
+	UPROPERTY(EditDefaultsOnly, Replicated)
+		TObjectPtr<UGrenadeShootComponent> GrenadeComponent;
 
-	//UPROPERTY(EditDefaultsOnly)
-		//TObjectPtr<ULazerShootUserComponent> LazerComp;
-
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Replicated)
 		TObjectPtr<UTracePlayersComponent> TraceComp;
 
-	UPROPERTY(EditDefaultsOnly)
-		TObjectPtr<ULazerShootComponent> LazerComp;
+	UPROPERTY(EditDefaultsOnly, Replicated)
+		TObjectPtr<ULazerShootComponent> LazerComponent;
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FReloadingDelegate, bool, ReloadingFlag);
 	FReloadingDelegate Reloading;
@@ -79,23 +83,23 @@ public:
 
 protected:
 
+	UPROPERTY(Replicated)
 	double GrenadeTimeCount;
 
-	UFUNCTION()
+	UFUNCTION(Server, Unreliable)
 		void KillPlayer();
 
-	UFUNCTION()
+	UFUNCTION(NetMulticast,Unreliable)
 		void EndOfReload();
+
+	UFUNCTION(Client, Unreliable)
+		void ChangeHPHUD(double HP);
 
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UInputMappingContext> IMC;
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UCameraComponent> CameraComponent;
-
-	/** Input action assigned to place defence. */
-	UPROPERTY(EditDefaultsOnly, Category = "Input")
-	TObjectPtr<UInputAction> PlaceDefenceAction;
 
 	/** Input action assigned to movement. */
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
@@ -117,7 +121,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TObjectPtr<UInputAction> ReloadInputAction;
 
-	virtual void OnPlaceDefenceInput(const FInputActionInstance& InputActionInstance);
 	virtual void OnShootInput(const FInputActionInstance& InputActionInstance);
 	virtual void OnChangeWeaponInput(const FInputActionInstance& InputActionInstance);
 	virtual void OnReloadInput(const FInputActionInstance& InputActionInstance);

@@ -1,8 +1,13 @@
 #include "EnemyActorBasic.h"
+#include "Net/UnrealNetwork.h"
 
 AEnemyActorBasic::AEnemyActorBasic()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	bReplicates = true;
+	SetReplicateMovement(true);
+	//NetUpdateFrequency = 15.0;
 
 	Box = CreateDefaultSubobject<UBoxComponent>(TEXT("Box"));
 	SetRootComponent(Box);
@@ -17,9 +22,13 @@ AEnemyActorBasic::AEnemyActorBasic()
 	Health = CreateDefaultSubobject<UHealthComponent>(TEXT("Health"));
 	Health->GetNullHP.AddDynamic(this,&AEnemyActorBasic::GetNullHPInfo);
 
+	Health->GetHPValue.AddDynamic(this, &AEnemyActorBasic::ChangeHP);
+
 	PrintHP = CreateDefaultSubobject<UHPPrintComponent>(TEXT("HP Print"));
 	PrintHP->SetupAttachment(RootComponent);
 	PrintHP->SetupHealthPoints(Health->GetHP());
+
+	//Health->GetHPValue.AddDynamic(PrintHP, &UHPPrintComponent::SetupHealthPoints);
 
 	GuardComp = CreateDefaultSubobject<UEnemyGuardComonent>(TEXT("Guardian Behavior"));
 	GuardComp->NewPosDelegate.AddDynamic(this, &AEnemyActorBasic::GetNewLocation);
@@ -39,22 +48,45 @@ AEnemyActorBasic::AEnemyActorBasic()
 	TraceComp->TraceResult.AddDynamic(FollowingComp, &UFollowingPlayerComponent::GetTargetHit);
 
 	this->ShootStatus.AddDynamic(LazerShootComp, &ULazerShootComponent::ShootStatus);
+	this->ChangeHPDelegate.AddDynamic(PrintHP, &UHPPrintComponent::SetupHealthPoints);
 }
 
-void AEnemyActorBasic::GetNewLocation(FVector NewLocation) {
+void AEnemyActorBasic::ChangeHP_Implementation(double HP) {
+	if (ChangeHPDelegate.IsBound()) {
+		ChangeHPDelegate.Broadcast(HP);
+	}
+}
+
+
+void AEnemyActorBasic::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const  {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AEnemyActorBasic, FollowingComp);
+	DOREPLIFETIME(AEnemyActorBasic, GrenadeComponent);
+	DOREPLIFETIME(AEnemyActorBasic, GuardComp);
+	DOREPLIFETIME(AEnemyActorBasic, DestroyComp);
+	DOREPLIFETIME(AEnemyActorBasic, Health);
+	DOREPLIFETIME(AEnemyActorBasic, Box);
+	DOREPLIFETIME(AEnemyActorBasic, LazerShootComp);
+	DOREPLIFETIME(AEnemyActorBasic, TraceComp);
+}
+
+void AEnemyActorBasic::GetNewLocation_Implementation(FVector NewLocation) {
 	SetActorLocation(NewLocation);
 }
 
-void AEnemyActorBasic::GetDestroyed() {
+void AEnemyActorBasic::GetDestroyed_Implementation() {
 	Destroy();
 }
 
 void AEnemyActorBasic::GetDamage(const double& Damage) {
+
+	if (!HasAuthority())return;
+
 	Health->BecomeDamage(Damage);
-	PrintHP->SetupHealthPoints(Health->GetHP()<0.0?0: Health->GetHP());
 }
 
-void AEnemyActorBasic::GetNullHPInfo() {
+void AEnemyActorBasic::GetNullHPInfo_Implementation() {
 	LazerShootComp->DestroyComponent();
 	PrintHP->DestroyComponent();
 	Mesh->DestroyComponent();

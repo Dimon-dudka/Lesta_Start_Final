@@ -1,8 +1,11 @@
 #include "FollowingPlayerComponent.h"
+#include "Net/UnrealNetwork.h"
 
 UFollowingPlayerComponent::UFollowingPlayerComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+
+	SetIsReplicatedByDefault(true);
 
 	IsFollowPlayerFlag = false;
 	IsAlreadyExplosion = false;
@@ -12,11 +15,27 @@ UFollowingPlayerComponent::UFollowingPlayerComponent()
 	DistanceOfStartExplosion = 50.0;
 }
 
-void UFollowingPlayerComponent::GetTargetHit(FHitResult HitRes) {
+void UFollowingPlayerComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UFollowingPlayerComponent, ExplosionStart);
+	DOREPLIFETIME(UFollowingPlayerComponent, NewPosDelegate);
+	DOREPLIFETIME(UFollowingPlayerComponent, SpeedOfRunEnemy);
+	DOREPLIFETIME(UFollowingPlayerComponent, VisibilityOfPlayer);
+	DOREPLIFETIME(UFollowingPlayerComponent, DistanceOfStartExplosion);
+	DOREPLIFETIME(UFollowingPlayerComponent, IsFollowPlayerFlag);
+	DOREPLIFETIME(UFollowingPlayerComponent, IsAlreadyExplosion);
+	DOREPLIFETIME(UFollowingPlayerComponent, Hit);
+	DOREPLIFETIME(UFollowingPlayerComponent, CurrentPos);
+	DOREPLIFETIME(UFollowingPlayerComponent, TargetPos);
+	DOREPLIFETIME(UFollowingPlayerComponent, CalculationPos);
+}
+
+void UFollowingPlayerComponent::GetTargetHit_Implementation(FHitResult HitRes) {
 	Hit = HitRes;
 }
 
-void UFollowingPlayerComponent::InitStartPosition(FVector3d NewPos) {
+void UFollowingPlayerComponent::InitStartPosition_Implementation(FVector3d NewPos) {
 	CurrentPos = NewPos;
 	TargetPos = NewPos;
 }
@@ -26,7 +45,7 @@ void UFollowingPlayerComponent::BeginPlay()
 	Super::BeginPlay();
 }
 
-void UFollowingPlayerComponent::SetFollowingPlayer(bool Flag) {
+void UFollowingPlayerComponent::SetFollowingPlayer_Implementation(bool Flag) {
 	IsFollowPlayerFlag = Flag;
 }
 
@@ -34,15 +53,15 @@ void UFollowingPlayerComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	if (!GetOwner()->HasAuthority())return;
+
 	if (!IsFollowPlayerFlag||IsAlreadyExplosion)return;
 
-	auto User = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
-
-	if (!Hit.IsValidBlockingHit() || Hit.Distance > VisibilityOfPlayer || Hit.GetActor() != User ) {
+	if (!Hit.IsValidBlockingHit() || Hit.Distance > VisibilityOfPlayer ) {
 		return;
 	}
 
-	if (Hit.Distance <= DistanceOfStartExplosion&& Hit.GetActor() == User) {
+	if (Hit.Distance <= DistanceOfStartExplosion) {
 
 		IsAlreadyExplosion = true;
 
@@ -51,6 +70,8 @@ void UFollowingPlayerComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 		}
 		return;
 	}
+
+	if (!Hit.GetActor())return;
 
 	TargetPos = Hit.GetActor()->GetActorLocation();
 

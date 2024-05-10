@@ -1,12 +1,20 @@
 #include "TracePlayersComponent.h"
+#include "Net/UnrealNetwork.h"
 
 UTracePlayersComponent::UTracePlayersComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
-	IsTrace = false;
+    SetIsReplicatedByDefault(true);
 
     MaxLengthOfTrace = 100000.0;
+}
+
+void UTracePlayersComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps)const {
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+    DOREPLIFETIME(UTracePlayersComponent, MaxLengthOfTrace);
+    //DOREPLIFETIME(UTracePlayersComponent, HitDelegate);
 }
 
 void UTracePlayersComponent::BeginPlay()
@@ -17,8 +25,10 @@ void UTracePlayersComponent::BeginPlay()
 void UTracePlayersComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+    
+    if (!GetOwner()->HasAuthority())return;
 
-    if (APlayerController* PlayerController = Cast<APlayerController>(GetWorld()->GetFirstPlayerController()))
+    if (APlayerController* PlayerController = Cast<APlayerController>(GetOwner()->GetInstigatorController()))
     {
         FVector ViewLocation;
         FRotator ViewRotation;

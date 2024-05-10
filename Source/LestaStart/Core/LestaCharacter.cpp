@@ -2,11 +2,21 @@
 #include "EnhancedInputComponent.h"
 #include "Camera/CameraComponent.h"
 
+#include "Net/UnrealNetwork.h"
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/GameState.h"
+
 #include "../PlayerHUD.h"
 
 ALestaCharacter::ALestaCharacter()
 {
-	NetUpdateFrequency = 10.f;
+	NetUpdateFrequency = 20.f;
+	
+	//PlayerController = nullptr;
+
+	bReplicates = true;
+	bAlwaysRelevant = true;
+	SetReplicateMovement(true);
 
 	ChoisenWeapon = WEAPON_TYPE::LAZER;
 	IsShooting = false;
@@ -16,29 +26,47 @@ ALestaCharacter::ALestaCharacter()
 	CameraComponent->bUsePawnControlRotation = true; // Camera rotation is synchronized with Player Controller rotation
 	CameraComponent->SetupAttachment(GetMesh());
 
-	HealthComp = CreateDefaultSubobject<UHealthComponent>(TEXT("Health"));
-	HealthComp->GetNullHP.AddDynamic(this, &ALestaCharacter::KillPlayer);
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health Component"));
+	HealthComponent->GetNullHP.AddDynamic(this, &ALestaCharacter::KillPlayer);
+	HealthComponent->GetHPValue.AddDynamic(this, &ALestaCharacter::ChangeHPHUD);
 
-	GrenadeComp = CreateDefaultSubobject<UGrenadeShootComponent>(TEXT("Grenade"));
-	GrenadeComp->IsReload.AddDynamic(this, &ALestaCharacter::EndOfReload);
+	GrenadeComponent = CreateDefaultSubobject<UGrenadeShootComponent>(TEXT("Grenade Component"));
+	GrenadeComponent->IsReload.AddDynamic(this, &ALestaCharacter::EndOfReload);
 
-	//LazerComp = CreateDefaultSubobject<ULazerShootUserComponent>(TEXT("Lazer"));
-	//LazerComp->IsReload.AddDynamic(this, &ALestaCharacter::EndOfReload);
-
-	LazerComp = CreateDefaultSubobject<ULazerShootComponent>(TEXT("Lazer Component"));
-	LazerComp->IsReload.AddDynamic(this, &ALestaCharacter::EndOfReload);
+	LazerComponent = CreateDefaultSubobject<ULazerShootComponent>(TEXT("Lazer Component"));
+	LazerComponent->IsReload.AddDynamic(this, &ALestaCharacter::EndOfReload);
 
 	TraceComp = CreateDefaultSubobject<UTracePlayersComponent>(TEXT("Trace Component"));
-	TraceComp->HitDelegate.AddDynamic(LazerComp, &ULazerShootComponent::GetHit);
+	TraceComp->HitDelegate.AddDynamic(LazerComponent, &ULazerShootComponent::GetHit);
 
-	this->ShootingStatus.AddDynamic(LazerComp, &ULazerShootComponent::ShootStatus);
-	this->StartReload.AddDynamic(LazerComp, &ULazerShootComponent::StartReload);
+	this->ShootingStatus.AddDynamic(LazerComponent, &ULazerShootComponent::ShootStatus);
+	this->StartReload.AddDynamic(LazerComponent, &ULazerShootComponent::StartReload);
+}
+
+void ALestaCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps)const {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ALestaCharacter, ChoisenWeapon);
+	DOREPLIFETIME(ALestaCharacter, IsShooting);
+	DOREPLIFETIME(ALestaCharacter, IsReloading);
+	DOREPLIFETIME(ALestaCharacter, GrenadeTimeCount)
+
+	DOREPLIFETIME(ALestaCharacter, StartReload);
+	DOREPLIFETIME(ALestaCharacter, ShootingStatus);
+
+	DOREPLIFETIME(ALestaCharacter, LazerComponent);
+	DOREPLIFETIME(ALestaCharacter, HealthComponent);
+	DOREPLIFETIME(ALestaCharacter, TraceComp);
+	DOREPLIFETIME(ALestaCharacter, GrenadeComponent);
 }
 
 void ALestaCharacter::BeginPlay() {
 	Super::BeginPlay();
 
 	if (APlayerController* PC = GetController<APlayerController>()) {
+
+		//PC->ClientTravel(GetWorld()->GetAddressURL(), ETravelType::TRAVEL_Absolute);
+		//PC->ClientTravel(“IPADDRESS”, ETravelType::TRAVEL_Absolute);
 
 		//	Input System Setup
 		if (const ULocalPlayer* LocalPlayer = PC->GetLocalPlayer()) {
@@ -48,33 +76,66 @@ void ALestaCharacter::BeginPlay() {
 		}
 		
 		//	HUD Setup
-		if (APlayerHUD* HUD = Cast<APlayerHUD>(PC->MyHUD.Get())) {
-			ChangeHP.AddDynamic(HUD, &APlayerHUD::SetTextHP);
-			ChangeWeapon.AddDynamic(HUD, &APlayerHUD::SetTextWeapon);
-			Reloading.AddDynamic(HUD, &APlayerHUD::SetReloadingText);
+		for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It) {
+			APlayerController* PlayerController = It->Get();
+			if (PlayerController==Cast<APlayerController>(this->GetController())) {
+
+				UserPlayerController = PlayerController;
+
+				APlayerHUD* UserHUD = GetWorld()->SpawnActor<APlayerHUD>();
+				PlayerController->MyHUD = UserHUD;
+				
+				ChangeHP.AddDynamic(UserHUD, &APlayerHUD::SetTextHP);
+				ChangeWeapon.AddDynamic(UserHUD, &APlayerHUD::SetTextWeapon);
+				Reloading.AddDynamic(UserHUD, &APlayerHUD::SetReloadingText);
+
+				UE_LOG(LogInit, Error, TEXT("Setted Player Controller"));
+			}
 		}
-		
+
 		//	Initial HUD textes setup
 		if (ChangeHP.IsBound()&& ChangeWeapon.IsBound()&& Reloading.IsBound()) {
-			ChangeHP.Broadcast(HealthComp->GetHP());
+			ChangeHP.Broadcast(HealthComponent->GetHP());
 			ChangeWeapon.Broadcast("Lazer");
 			Reloading.Broadcast(false);
 		}
 	}
+
+	UE_LOG(LogInit, Error, TEXT("Begin Play"));
 }
 
 void ALestaCharacter::GetDamage(const double& Damage) {
-	HealthComp->BecomeDamage(Damage);
 
+	if (!HasAuthority())return;
+
+	HealthComponent->BecomeDamage(Damage);
+}
+
+void ALestaCharacter::ChangeHPHUD_Implementation(double HP) {
 	//	HUD Update
 	if (ChangeHP.IsBound()) {
-		ChangeHP.Broadcast(HealthComp->GetHP());
+		ChangeHP.Broadcast(HP);
 	}
 }
 
-void ALestaCharacter::KillPlayer() {
+void ALestaCharacter::KillPlayer_Implementation() {
 	//	Restart Game
-	UGameplayStatics::OpenLevel(GetWorld(), FName(*GetWorld()->GetName()), false);
+
+	SetHidden(true);
+	SetActorEnableCollision(false);
+
+	if (!HasAuthority())return;
+
+	UCapsuleComponent* Capsule = GetCapsuleComponent();
+	if (Capsule) {
+		Capsule->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+
+	//APlayerController* UserController = Cast<APlayerController>(GetController());
+	//AGameStateBase* tmp = GetWorld()->GetGameState();
+	//tmp->OnDestroyed.Broadcast(this);
+	//GetController()->UnPossess();
+	Destroy();
 }
 
 void ALestaCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -92,8 +153,6 @@ void ALestaCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 		EIC->BindAction(ShootInputAction, ETriggerEvent::Ongoing, this, &ThisClass::OnShootInput);
 		EIC->BindAction(ChangeWeaponInputAction, ETriggerEvent::Triggered, this, &ThisClass::OnChangeWeaponInput);
 		EIC->BindAction(ReloadInputAction, ETriggerEvent::Triggered, this, &ThisClass::OnReloadInput);
-		EIC->BindAction(PlaceDefenceAction, ETriggerEvent::Triggered, this, &ThisClass::OnPlaceDefenceInput);
-
 	}
 	else
 	{
@@ -101,10 +160,6 @@ void ALestaCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 		// You can read more here: https://dev.epicgames.com/documentation/en-us/unreal-engine/logging-in-unreal-engine
 		UE_LOG(LogInput, Error, TEXT("Unexpected input component class: %s"), *GetFullNameSafe(PlayerInputComponent))
 	}
-}
-
-void ALestaCharacter::OnPlaceDefenceInput(const FInputActionInstance& InputActionInstance) {
-
 }
 
 void ALestaCharacter::OnShootInput(const FInputActionInstance& InputActionInstance) {
@@ -119,7 +174,7 @@ void ALestaCharacter::OnShootInput(const FInputActionInstance& InputActionInstan
 		case WEAPON_TYPE::GRENADE:
 
 			if (GrenadeTimeCount >= 0.1) {
-				GrenadeComp->StartShoot(GrenadeTimeCount, GetActorLocation());
+				GrenadeComponent->StartShoot(GrenadeTimeCount, GetActorLocation());
 			}
 
 			GrenadeTimeCount = 0.0;
@@ -144,11 +199,11 @@ void ALestaCharacter::OnShootInput(const FInputActionInstance& InputActionInstan
 		switch (ChoisenWeapon) {
 
 		case WEAPON_TYPE::GRENADE:
-			if (GrenadeTimeCount < GrenadeComp->GetGrenadeMaxTime()) {
-				GrenadeTimeCount = InputActionInstance.GetElapsedTime() / GrenadeComp->GetGrenadeMaxTime();
+			if (GrenadeTimeCount < GrenadeComponent->GetGrenadeMaxTime()) {
+				GrenadeTimeCount = InputActionInstance.GetElapsedTime() / GrenadeComponent->GetGrenadeMaxTime();
 			}
-			GrenadeComp->GetGrenadeMaxTime() < GrenadeTimeCount ?
-				GrenadeTimeCount = GrenadeComp->GetGrenadeMaxTime() : GrenadeTimeCount;
+			GrenadeComponent->GetGrenadeMaxTime() < GrenadeTimeCount ?
+				GrenadeTimeCount = GrenadeComponent->GetGrenadeMaxTime() : GrenadeTimeCount;
 
 			break;
 		case WEAPON_TYPE::LAZER:
@@ -163,7 +218,7 @@ void ALestaCharacter::OnShootInput(const FInputActionInstance& InputActionInstan
 	}
 }
 
-void ALestaCharacter::EndOfReload() {
+void ALestaCharacter::EndOfReload_Implementation() {
 	IsReloading = false;
 
 	//	HUD Text update
@@ -183,16 +238,14 @@ void ALestaCharacter::OnReloadInput(const FInputActionInstance& InputActionInsta
 	}
 
 	if (ChoisenWeapon == WEAPON_TYPE::GRENADE) {
-		GrenadeComp->StartReload();
+		GrenadeComponent->StartReload();
 	}
 	else if (ChoisenWeapon == WEAPON_TYPE::LAZER) {
 		
 		if (StartReload.IsBound()) {
 			StartReload.Broadcast();
 		}
-
 	}
-
 }
 
 void ALestaCharacter::OnChangeWeaponInput(const FInputActionInstance& InputActionInstance) {

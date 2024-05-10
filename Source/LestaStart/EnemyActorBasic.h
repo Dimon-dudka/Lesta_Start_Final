@@ -24,56 +24,67 @@ class LESTASTART_API AEnemyActorBasic : public AActor , public IActorInterface
 public:	
 	AEnemyActorBasic();
 
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FChangeHPUIEnemy, double, HP);
+	FChangeHPUIEnemy ChangeHPDelegate;
+
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FShootStatus, bool, Flag);
+	UPROPERTY(Replicated)
 	FShootStatus ShootStatus;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 		TObjectPtr<UFollowingPlayerComponent> FollowingComp;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 		TObjectPtr<UGrenadeShootComponent> GrenadeComponent;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 		TObjectPtr<UEnemyGuardComonent> GuardComp;
 
+	//UPROPERTY(EditAnywhere)
 	UPROPERTY(EditAnywhere)
 		TObjectPtr<UHPPrintComponent> PrintHP;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 		TObjectPtr<UDestroyAnimationComponent> DestroyComp;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 		TObjectPtr<UHealthComponent> Health;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 		TObjectPtr<UBoxComponent> Box;
 
+	//UPROPERTY(EditAnywhere, Replicated)
 	UPROPERTY(EditAnywhere)
 		TObjectPtr<UStaticMeshComponent> Mesh;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 		TObjectPtr<ULazerShootComponent> LazerShootComp;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 		TObjectPtr<UTraceEnemiesComponent> TraceComp;
 
 protected:
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps)const override;
 
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void BeginPlay() override;
 
-	UFUNCTION()
+	UFUNCTION(Server, Unreliable)
 		void GetDestroyed();
 
-	UFUNCTION()
-		void GetNewLocation(FVector NewLocation);
+	UFUNCTION(NetMulticast, Unreliable)
+		void ChangeHP(double HP);
 
 public:	
 
-	UFUNCTION()
+	UFUNCTION(Server, Unreliable)
+		void GetNewLocation(FVector NewLocation);
+
+	UFUNCTION(NetMulticast, Unreliable)
 		void GetNullHPInfo();
 
+	//UFUNCTION(Server, Unreliable)
 	UFUNCTION()
 		virtual void GetDamage(const double& Damage) override;
 };

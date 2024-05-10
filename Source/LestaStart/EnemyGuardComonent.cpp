@@ -1,8 +1,11 @@
 #include "EnemyGuardComonent.h"
+#include "Net/UnrealNetwork.h"
 
 UEnemyGuardComonent::UEnemyGuardComonent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+
+	SetIsReplicatedByDefault(true);
 
 	EnemyDirection = 0;
 
@@ -18,21 +21,42 @@ UEnemyGuardComonent::UEnemyGuardComonent()
 	SpeedOfWalkEnemy = 150.0;
 }
 
-void UEnemyGuardComonent::InitialSetup(const FVector& Position) {
+void UEnemyGuardComonent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UEnemyGuardComonent, EnemyDirection);
+	DOREPLIFETIME(UEnemyGuardComonent, AccuracyOfPointMoving);
+	DOREPLIFETIME(UEnemyGuardComonent, FlagOfBasicDirection);
+	DOREPLIFETIME(UEnemyGuardComonent, IsThisEnemyGuard);
+	DOREPLIFETIME(UEnemyGuardComonent, IsUserVisible);
+	DOREPLIFETIME(UEnemyGuardComonent, VisibilityOfPlayer);
+	DOREPLIFETIME(UEnemyGuardComonent, LengthOfWalking);
+	DOREPLIFETIME(UEnemyGuardComonent, SpeedOfRunEnemy);
+	DOREPLIFETIME(UEnemyGuardComonent, SpeedOfWalkEnemy);
+	DOREPLIFETIME(UEnemyGuardComonent, NewPosDelegate);
+}
+
+void UEnemyGuardComonent::InitialSetup_Implementation(const FVector& Position) {
 	CurrentPos = Position;
 	InitialPos = Position;
 }
 
-void UEnemyGuardComonent::GetHitRes(FHitResult HitRes) {
+void UEnemyGuardComonent::GetHitRes_Implementation(FHitResult HitRes) {
 
 	Hit = HitRes;
+
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APlayerController* PlayerController = It->Get();
+		if (PlayerController && Hit.GetActor() == PlayerController->GetPawn() && Hit.Distance <= VisibilityOfPlayer)
+		{
+			IsUserVisible = true;
+			return;
+		}
+	}
 	
-	if (Hit.GetActor() == UGameplayStatics::GetPlayerPawn(GetWorld(), 0)&&Hit.Distance<= VisibilityOfPlayer) {
-		IsUserVisible = true;
-	}
-	else {
-		IsUserVisible = false;
-	}
+	IsUserVisible = false;
+	
 }
 
 void UEnemyGuardComonent::BeginPlay()
@@ -44,6 +68,8 @@ void UEnemyGuardComonent::BeginPlay()
 void UEnemyGuardComonent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	if (!GetOwner()->HasAuthority())return;
 
 	if (!IsThisEnemyGuard)return;
 
@@ -98,6 +124,8 @@ void UEnemyGuardComonent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 	}
 	//	User is visible and enemy is moving towards
 	else {
+
+		if (!Hit.GetActor())return;
 
 		if (WayToReturn.IsEmpty()) {
 			WayToReturn.Push(InitialPos);

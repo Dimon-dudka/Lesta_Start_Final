@@ -18,50 +18,67 @@ public:
 	UEnemyGuardComonent();
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FReturnNewPosition, FVector,NewPos);
+	UPROPERTY(Replicated)
 	FReturnNewPosition NewPosDelegate;
 
 	//	Guard - means that enemy gonna walk 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere,Replicated)
 		bool IsThisEnemyGuard;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 		double LengthOfWalking;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 		double SpeedOfRunEnemy;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 		double SpeedOfWalkEnemy;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 		double VisibilityOfPlayer;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 		double AccuracyOfPointMoving;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 		bool EnemyDirection;	// 0 - X, 1 - Y
 
 protected:
 	virtual void BeginPlay() override;
 
-	bool FlagOfBasicDirection,IsUserVisible;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+	UPROPERTY(Replicated)
+	bool IsUserVisible;
+
+	UPROPERTY(Replicated)
+	bool FlagOfBasicDirection;
+
+	UPROPERTY(Replicated)
 	FHitResult Hit;
 
+	UPROPERTY(Replicated)
 	TArray<FVector3d> WayToReturn;
 
-	FVector3d  CurrentPos, InitialPos, TargetPos;
+	UPROPERTY(Replicated)
+	FVector3d  CurrentPos;
+
+	UPROPERTY(Replicated)
+	FVector3d InitialPos;
+
+	UPROPERTY(Replicated)
+	FVector3d TargetPos;
 
 	//	For calculating vector on each step to target point
+	UPROPERTY(Replicated)
 	FVector2D CalculationPos;
 
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	UFUNCTION()
+	UFUNCTION(Server, Unreliable)
 		void InitialSetup(const FVector& Position);
 
-	UFUNCTION()
+	UFUNCTION(Server,Unreliable)
 		void GetHitRes(FHitResult HitRes);
 };

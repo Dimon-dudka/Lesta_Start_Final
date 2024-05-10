@@ -14,7 +14,7 @@ class LESTASTART_API UDoorMovementComponent : public UActorComponent
 
 public:
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 	double SpeedKoef;
 
 public:	
@@ -22,16 +22,17 @@ public:
 
 	//	Return of the calculated new door position
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDoorPosition, FVector, VectorCoord);
+	UPROPERTY(Replicated)
 	FDoorPosition DoorPos;
 
 	//	Setting door status [open, close]
-	UFUNCTION()
-		void OpenClose(const bool& DoorStatus);
+	UFUNCTION(Server, Unreliable)
+		void OpenClose(bool DoorStatus);
 
-	UFUNCTION()
+	UFUNCTION(Server, Unreliable)
 		void InitialSetup(const FVector& pos);
 
-	UFUNCTION()
+	UFUNCTION(Server, Unreliable)
 		void SetupLengthOfDoorMove(const double& Length);
 
 protected:
@@ -39,18 +40,22 @@ protected:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 		FActorComponentTickFunction* ThisTickFunction) override;
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Replicated)
 		FVector ActorInitialPosition;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Replicated)
 		FVector ActorCurrentPosition;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 		double MaxLen;
 
+	UPROPERTY(Replicated)
 	double CurrentPos;
 
+	UPROPERTY(Replicated)
 	bool StatusFlag;
 };
