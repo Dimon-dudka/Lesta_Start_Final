@@ -73,14 +73,28 @@ void ULazerShootComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
         return;
     }
 
-    if (!ShootingFlag || CurrentShootingTime >= MaxShootingTime || !Hit.IsValidBlockingHit()) return;
+    if (!ShootingFlag || CurrentShootingTime >= MaxShootingTime) return;
 
-    //  Only player has limited lazer
-    if (IsPlayer)CurrentShootingTime += DeltaTime;
-
-    if (Hit.Distance > MaxLength) return;
-
-    DrawDebugLine(GetWorld(), Hit.TraceStart, Hit.ImpactPoint, FColor::Green, false, 0.001f, 0, 1.f);
+    if (Hit.Distance > MaxLength) {
+        if (IsPlayer) {
+            //  Only player has limited lazer
+            CurrentShootingTime += DeltaTime;
+            DrawDebugLine(GetWorld(), Hit.TraceStart, Hit.TraceEnd, FColor::Green, false, 0.001f, 0, 1.f);
+        }
+        else {
+            return;
+        }
+    }
+    else {
+        if (IsPlayer) {
+            //  Only player has limited lazer
+            CurrentShootingTime += DeltaTime;
+            DrawDebugLine(GetWorld(), Hit.TraceStart, Hit.ImpactPoint, FColor::Green, false, 0.001f, 0, 1.f);
+        }
+        else {
+            DrawDebugLine(GetWorld(), Hit.TraceStart, Hit.ImpactPoint, FColor::Red, false, 0.001f, 0, 1.f);
+        }
+    }
 
     if (!GetOwner()->HasAuthority())return;
 
