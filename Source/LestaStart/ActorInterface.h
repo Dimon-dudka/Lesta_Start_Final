@@ -18,6 +18,7 @@ class LESTASTART_API IActorInterface
 
 public:
 
+	//	Interface function to all actors who can become damage
 	UFUNCTION()
 		virtual void GetDamage(const double& Damage) = 0;
 };

@@ -19,9 +19,13 @@ public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEndOfAnimation);
 	FEndOfAnimation AnimationStatus;
 
-	//	Destroy animation radius
+	//	Destroy animation max radius
 	UPROPERTY(EditAnywhere)
 		double ExplosionRadius;
+
+	//	Speed of animation playing
+	UPROPERTY(EditAnywhere)
+		double AnimationSpeed;
 
 	UFUNCTION()
 		void StartAnimation();

@@ -16,6 +16,7 @@ class LESTASTART_API ASpawnerActor : public AActor
 
 private:
 
+	//	Is actor spawned yet
 	UPROPERTY(Replicated)
 		bool SpawnFlag;
 	

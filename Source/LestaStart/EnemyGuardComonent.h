@@ -19,12 +19,13 @@ public:
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FReturnNewPosition, FVector,NewPos);
 	UPROPERTY(Replicated)
-	FReturnNewPosition NewPosDelegate;
+		FReturnNewPosition NewPosDelegate;
 
 	//	Guard - means that enemy gonna walk 
 	UPROPERTY(EditAnywhere,Replicated)
 		bool IsThisEnemyGuard;
 
+	//	Length of max security distance
 	UPROPERTY(EditAnywhere, Replicated)
 		double LengthOfWalking;
 
@@ -34,12 +35,15 @@ public:
 	UPROPERTY(EditAnywhere, Replicated)
 		double SpeedOfWalkEnemy;
 
+	//	Max length of user visibility
 	UPROPERTY(EditAnywhere, Replicated)
 		double VisibilityOfPlayer;
 
+	//	The accuracy of hitting the calculated point
 	UPROPERTY(EditAnywhere, Replicated)
 		double AccuracyOfPointMoving;
 
+	//	In what global coordinate actor will be walking while security
 	UPROPERTY(EditAnywhere, Replicated)
 		bool EnemyDirection;	// 0 - X, 1 - Y
 
@@ -48,30 +52,35 @@ protected:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+	//	Is some player visible
 	UPROPERTY(Replicated)
-	bool IsUserVisible;
+		bool IsUserVisible;
+
+	//	Àlag about the method of changing coordinates during protection (+ or -)
+	UPROPERTY(Replicated)
+		bool FlagOfBasicDirection;
+
+	//	HitResult from trace component
+	UPROPERTY(Replicated)
+		FHitResult Hit;
+
+	//	Way to initial point
+	UPROPERTY(Replicated)
+		TArray<FVector3d> WayToReturn;
 
 	UPROPERTY(Replicated)
-	bool FlagOfBasicDirection;
+		FVector3d  CurrentPos;
 
 	UPROPERTY(Replicated)
-	FHitResult Hit;
+		FVector3d InitialPos;
 
+	//	Point where was traced player
 	UPROPERTY(Replicated)
-	TArray<FVector3d> WayToReturn;
+		FVector3d TargetPos;
 
+	//	For calculating vector on each step to target point (without Z-axis)
 	UPROPERTY(Replicated)
-	FVector3d  CurrentPos;
-
-	UPROPERTY(Replicated)
-	FVector3d InitialPos;
-
-	UPROPERTY(Replicated)
-	FVector3d TargetPos;
-
-	//	For calculating vector on each step to target point
-	UPROPERTY(Replicated)
-	FVector2D CalculationPos;
+		FVector2D CalculationPos;
 
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

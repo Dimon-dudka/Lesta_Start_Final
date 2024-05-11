@@ -75,6 +75,7 @@ void ULazerShootComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 
     if (!ShootingFlag || CurrentShootingTime >= MaxShootingTime || !Hit.IsValidBlockingHit()) return;
 
+    //  Only player has limited lazer
     if (IsPlayer)CurrentShootingTime += DeltaTime;
 
     if (Hit.Distance > MaxLength) return;

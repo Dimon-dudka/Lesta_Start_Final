@@ -6,6 +6,7 @@ UDestroyAnimationComponent::UDestroyAnimationComponent()
 
 	DestroyFlag = false;
 	CurrentRadius = 0.0;
+	AnimationSpeed = 10.0;
 	ExplosionRadius = 200.0;
 }
 
@@ -32,7 +33,7 @@ void UDestroyAnimationComponent::TickComponent(float DeltaTime, ELevelTick TickT
 			}
 		}
 		else {
-			CurrentRadius += 10.0;
+			CurrentRadius += AnimationSpeed;
 			DrawDebugSphere(GetWorld(), GetComponentLocation(), CurrentRadius, 20, FColor::Red, 0, 0.1);
 		}
 	}

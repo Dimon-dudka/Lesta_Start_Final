@@ -21,6 +21,7 @@ public:
 	UPROPERTY(Replicated)
 		FEndOfReloading IsReload;
 
+	//	Info about end of explosion
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEndOfExplosion);
 	UPROPERTY(Replicated)
 		FEndOfExplosion EndOfExpl;
@@ -31,6 +32,7 @@ public:
 	UPROPERTY(EditAnywhere, Replicated)
 		double GrenadeReloadingTime;
 
+	//	For enemy settings
 	UPROPERTY(EditAnywhere, Replicated)
 		bool IsGrenade;
 
@@ -44,6 +46,7 @@ public:
 	UPROPERTY(EditAnywhere, Replicated)
 		double Damage;
 
+	//	Max radius where every actor become damage
 	UPROPERTY(EditAnywhere, Replicated)
 		double MaxDamageLen;
 
@@ -59,6 +62,7 @@ protected:
 	UPROPERTY(Replicated)
 		FVector CentereExplosion;
 
+	//	Flag about is explosion going
 	UPROPERTY(Replicated)
 		bool FlagIsShoot;
 
@@ -67,6 +71,7 @@ protected:
 	
 	double CurrentAnimationRadius;
 
+	//	For players grenade in range [0:1]
 	UPROPERTY(Replicated)
 		double DamageKoef;
 

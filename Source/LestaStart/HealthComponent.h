@@ -22,6 +22,7 @@ public:
 	UPROPERTY(Replicated)
 		FGetHPValue GetHPValue;
 
+	//	Info about actors death
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FGetNullHPDelegate);
 	UPROPERTY(Replicated)
 		FGetNullHPDelegate GetNullHP;
@@ -40,6 +41,7 @@ public:
 	UFUNCTION()
 		double GetHP()const;
 
+	//	Initial HP setup
 	UFUNCTION(Server, Unreliable)
 		void SetHP(const double& HP);	
 };

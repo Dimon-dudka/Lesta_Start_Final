@@ -25,7 +25,6 @@ void ALestaGameMode::PostLogin(APlayerController* NewPlayer) {
 }
 
 void ALestaGameMode::RestartGame() {
-
 	ActivePlayers = 0;
 	
 	GetWorld()->ServerTravel(GetWorld()->GetMapName());

@@ -21,7 +21,7 @@ void APlayerHUD::DrawHUD() {
 }
 
 void APlayerHUD::SetTextHP(double HP) {
-	HPText = LexToSanitizedString((static_cast<int>(HP) / 5) * 5) + " HP";
+	HPText = LexToSanitizedString(static_cast<int>(HP))  + " HP";
 }
 
 void APlayerHUD::SetTextWeapon(FString Weapon) {

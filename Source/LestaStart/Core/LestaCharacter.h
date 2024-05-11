@@ -18,6 +18,7 @@
 
 class UCameraComponent;
 
+//	User weapon
 UENUM()
 enum class WEAPON_TYPE {
 	LAZER,
@@ -31,22 +32,27 @@ class LESTASTART_API ALestaCharacter : public ACharacter, public IActorInterface
 
 private:
 
+	//	Contains info about is user still shooting or no
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FShootingStatus, bool, Flag);
 	UPROPERTY(Replicated)
-	FShootingStatus ShootingStatus;
+		FShootingStatus ShootingStatus;
 
+	//	Info about reloading start
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FStartReload);
 	UPROPERTY(Replicated)
-	FStartReload StartReload;
+		FStartReload StartReload;
 
+	//	Flag is user shooting to block another weapon action
 	UPROPERTY(Replicated)
-	bool IsShooting;
+		bool IsShooting;
 
+	//	Flag is user reloading to block another weapon action
 	UPROPERTY(Replicated)
-	bool IsReloading;
+		bool IsReloading;
 
+	//	Type of choisen waepon
 	UPROPERTY(Replicated)
-	WEAPON_TYPE ChoisenWeapon;
+		WEAPON_TYPE ChoisenWeapon;
 
 	UPROPERTY(VisibleAnywhere, Category = "Player")
 		APlayerController* UserPlayerController;
@@ -76,19 +82,23 @@ public:
 	UPROPERTY(EditDefaultsOnly, Replicated)
 		TObjectPtr<ULazerShootComponent> LazerComponent;
 
+	//	Info about reloading to user HUD
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FReloadingDelegate, bool, ReloadingFlag);
 	FReloadingDelegate Reloading;
 
+	//	Info about HP to user HUD
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FChangeHPDelegate, double, HP);
 	FChangeHPDelegate ChangeHP;
 
+	//	Info about choisen weapon to user HUD
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FChangeWeaponDelegate, FString, Weapon);
 	FChangeWeaponDelegate ChangeWeapon;
 
 protected:
 
+	//	How many time player charched grenade
 	UPROPERTY(Replicated)
-	double GrenadeTimeCount;
+		double GrenadeTimeCount;
 
 	UFUNCTION(Server, Unreliable)
 		void KillPlayer();
@@ -100,30 +110,30 @@ protected:
 		void ChangeHPHUD(double HP);
 
 	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<UInputMappingContext> IMC;
+		TObjectPtr<UInputMappingContext> IMC;
 
 	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<UCameraComponent> CameraComponent;
+		TObjectPtr<UCameraComponent> CameraComponent;
 
 	/** Input action assigned to movement. */
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
-	TObjectPtr<UInputAction> MoveInputAction;
+		TObjectPtr<UInputAction> MoveInputAction;
 
 	/** Input action assigned to camera movement. */
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
-	TObjectPtr<UInputAction> LookInputAction;
+		TObjectPtr<UInputAction> LookInputAction;
 
 	/** Shoot Input Action **/
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
-	TObjectPtr<UInputAction> ShootInputAction;
+		TObjectPtr<UInputAction> ShootInputAction;
 
 	/** Change Weapon Input Action **/
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
-	TObjectPtr<UInputAction> ChangeWeaponInputAction;
+		TObjectPtr<UInputAction> ChangeWeaponInputAction;
 
 	/** Reload Input Action **/
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
-	TObjectPtr<UInputAction> ReloadInputAction;
+		TObjectPtr<UInputAction> ReloadInputAction;
 
 	virtual void OnShootInput(const FInputActionInstance& InputActionInstance);
 	virtual void OnChangeWeaponInput(const FInputActionInstance& InputActionInstance);

@@ -24,19 +24,24 @@ class LESTASTART_API AEnemyActorBasic : public AActor , public IActorInterface
 public:	
 	AEnemyActorBasic();
 
+	//	To change the HP label above the actor.
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FChangeHPUIEnemy, double, HP);
 	FChangeHPUIEnemy ChangeHPDelegate;
 
+	//	To shoot with lazer
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FShootStatus, bool, Flag);
 	UPROPERTY(Replicated)
-	FShootStatus ShootStatus;
+		FShootStatus ShootStatus;
 
+	//	For the bomber enemy
 	UPROPERTY(EditAnywhere, Replicated)
 		TObjectPtr<UFollowingPlayerComponent> FollowingComp;
 
+	//	For the bomber enemy to explose
 	UPROPERTY(EditAnywhere, Replicated)
 		TObjectPtr<UGrenadeShootComponent> GrenadeComponent;
 
+	//	For the guardian enemy
 	UPROPERTY(EditAnywhere, Replicated)
 		TObjectPtr<UEnemyGuardComonent> GuardComp;
 
@@ -68,9 +73,11 @@ protected:
 
 	virtual void BeginPlay() override;
 
+	//	Destroy actor after all necessaryes procedures
 	UFUNCTION(Server, Unreliable)
 		void GetDestroyed();
 
+	//	For update HP text above actor
 	UFUNCTION(NetMulticast, Unreliable)
 		void ChangeHP(double HP);
 
@@ -82,7 +89,6 @@ public:
 	UFUNCTION(NetMulticast, Unreliable)
 		void GetNullHPInfo();
 
-	//UFUNCTION(Server, Unreliable)
 	UFUNCTION()
 		virtual void GetDamage(const double& Damage) override;
 };

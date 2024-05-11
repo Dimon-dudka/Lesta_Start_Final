@@ -13,7 +13,8 @@ class LESTASTART_API ALestaGameMode : public AGameModeBase
 
 private:
 
-	virtual void RestartGame();
+	UFUNCTION()
+		void RestartGame();
 
 	UFUNCTION()
 		void DeactivatePlayer(AActor* DestroyedActor);

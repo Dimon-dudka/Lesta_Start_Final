@@ -28,7 +28,6 @@ void ABoxActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 	DOREPLIFETIME(ABoxActor, Health);
 	DOREPLIFETIME(ABoxActor, Box);
 	DOREPLIFETIME(ABoxActor, Mesh);
-	DOREPLIFETIME(ABoxActor, DestroyRadius);
 }
 
 void ABoxActor::GetDestroyed_Implementation() {

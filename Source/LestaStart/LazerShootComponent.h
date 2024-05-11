@@ -17,13 +17,16 @@ class LESTASTART_API ULazerShootComponent : public UActorComponent
 public:	
 	ULazerShootComponent();
 
+	//	Info about end of reloading
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEndOfReloading);
 	UPROPERTY(Replicated)
-	FEndOfReloading IsReload;
+		FEndOfReloading IsReload;
 
+	//	The setting is about whether the actor should shoot
 	UPROPERTY(EditAnywhere, Replicated)
 		bool MustShoot;
 
+	//	Flag is owner player or not
 	UPROPERTY(EditAnywhere, Replicated)
 		bool IsPlayer;
 
@@ -36,6 +39,7 @@ public:
 	UPROPERTY(EditAnywhere, Replicated)
 		double Damage;
 
+	//	Max damage length
 	UPROPERTY(EditAnywhere, Replicated)
 		double MaxLength;
 

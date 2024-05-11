@@ -93,6 +93,7 @@ void UGrenadeShootComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 		CurrentAnimationRadius += AnimationSpeed*DeltaTime;
 		DrawDebugSphere(GetWorld(), CentereExplosion, CurrentAnimationRadius, 40, FColor::Red, false, 0.2);
 
+		//	Damage after animation play
 		if (CurrentAnimationRadius > MaxDamageLen) {
 
 			TArray<FHitResult> Hits;

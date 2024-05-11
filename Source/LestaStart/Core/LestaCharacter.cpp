@@ -2,12 +2,11 @@
 #include "EnhancedInputComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Net/UnrealNetwork.h"
-
 #include "../PlayerHUD.h"
 
 ALestaCharacter::ALestaCharacter()
 {
-	NetUpdateFrequency = 20.f;
+	NetUpdateFrequency = 60.f;
 	
 	bReplicates = true;
 	bAlwaysRelevant = true;
@@ -148,6 +147,7 @@ void ALestaCharacter::OnShootInput(const FInputActionInstance& InputActionInstan
 
 	switch (InputActionInstance.GetTriggerEvent()) {
 
+	//	Triggered - when mouse button released
 	case ETriggerEvent::Triggered:
 		switch (ChoisenWeapon) {
 		case WEAPON_TYPE::GRENADE:
@@ -155,7 +155,6 @@ void ALestaCharacter::OnShootInput(const FInputActionInstance& InputActionInstan
 			if (GrenadeTimeCount >= 0.1) {
 				GrenadeComponent->StartShoot(GrenadeTimeCount, GetActorLocation());
 			}
-
 			GrenadeTimeCount = 0.0;
 			break;
 
@@ -164,7 +163,6 @@ void ALestaCharacter::OnShootInput(const FInputActionInstance& InputActionInstan
 			if (ShootingStatus.IsBound()) {
 				ShootingStatus.Broadcast(0);
 			}
-
 			break;
 		}
 
@@ -178,7 +176,9 @@ void ALestaCharacter::OnShootInput(const FInputActionInstance& InputActionInstan
 		switch (ChoisenWeapon) {
 
 		case WEAPON_TYPE::GRENADE:
+
 			if (GrenadeTimeCount < GrenadeComponent->GetGrenadeMaxTime()) {
+				//	To bring the time to the range [0:1]
 				GrenadeTimeCount = InputActionInstance.GetElapsedTime() / GrenadeComponent->GetGrenadeMaxTime();
 			}
 			GrenadeComponent->GetGrenadeMaxTime() < GrenadeTimeCount ?
@@ -186,11 +186,10 @@ void ALestaCharacter::OnShootInput(const FInputActionInstance& InputActionInstan
 
 			break;
 		case WEAPON_TYPE::LAZER:
-			
+
 			if (ShootingStatus.IsBound()) {
 				ShootingStatus.Broadcast(1);
 			}
-
 			break;
 		}
 		break;

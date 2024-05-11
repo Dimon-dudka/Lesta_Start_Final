@@ -19,7 +19,7 @@ public:
 	//	Return result of player trace
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTracedResult, FHitResult, Hit);
 	UPROPERTY(Replicated)
-	FTracedResult TraceResult;
+		FTracedResult TraceResult;
 
 protected:
 	virtual void BeginPlay() override;

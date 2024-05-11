@@ -34,14 +34,15 @@ void UTraceEnemiesComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	FVector TraceStart{ GetOwner()->GetActorLocation() }, TraceEnd;
 
 	for (auto It = GetWorld()->GetControllerIterator(); It; ++It) {
-		if (!It->Get())continue;
-		if (!It->Get()->GetPawn())continue;
+		if (!It->Get()||!It->Get()->GetPawn())continue;
 
 		TraceEnd = It->Get()->GetPawn()->GetActorLocation();
 		bBlockHit = GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, ECC_Pawn);
 
+		//	If hited actor not player
 		if (Hit.GetActor() != It->Get()->GetPawn())continue;
 
+		//	Choise of closer player
 		if (Hit.Distance < MinDistance) {
 			MinDistance = Hit.Distance;
 			FinalPawn = It->Get()->GetPawn();
@@ -49,6 +50,7 @@ void UTraceEnemiesComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 		}
 	}
 
+	//	If at least one valid player is visible
 	if (FinalPawn) {
 
 		if (!TraceResult.IsBound())return;

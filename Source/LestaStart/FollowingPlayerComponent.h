@@ -18,19 +18,21 @@ public:
 	//	Send Start Explosion request
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FStartOfExplosion);
 	UPROPERTY(Replicated)
-	FStartOfExplosion ExplosionStart;
+		FStartOfExplosion ExplosionStart;
 
 	//	Returns new calculated position
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FReturnNewPosition, FVector, NewPos);
 	UPROPERTY(Replicated)
-	FReturnNewPosition NewPosDelegate;
+		FReturnNewPosition NewPosDelegate;
 
 	UPROPERTY(EditAnywhere, Replicated)
 		double SpeedOfRunEnemy;
 
+	//	Max length of players visibility
 	UPROPERTY(EditAnywhere, Replicated)
 		double VisibilityOfPlayer;
 
+	//	Max length from player when actor can explose
 	UPROPERTY(EditAnywhere, Replicated)
 		double DistanceOfStartExplosion;
 
@@ -43,23 +45,27 @@ protected:
 
 	virtual void BeginPlay() override;
 
+	//	Setting for editor
 	UPROPERTY(Replicated)
-	bool IsFollowPlayerFlag;
+		bool IsFollowPlayerFlag;
+
+	//	Is explosion already started
+	UPROPERTY(Replicated)
+		bool IsAlreadyExplosion;
+
+	//	HitResult from trace component
+	UPROPERTY(Replicated)
+		FHitResult Hit;
 
 	UPROPERTY(Replicated)
-	bool IsAlreadyExplosion;
+		FVector3d  CurrentPos;	
 
 	UPROPERTY(Replicated)
-	FHitResult Hit;
+		FVector3d TargetPos;
 
+	//	For calculating vector on each step to target point (without Z-axis)
 	UPROPERTY(Replicated)
-	FVector3d  CurrentPos;	
-
-	UPROPERTY(Replicated)
-	FVector3d TargetPos;
-
-	UPROPERTY(Replicated)
-	FVector2D CalculationPos;
+		FVector2D CalculationPos;
 
 public:	
 

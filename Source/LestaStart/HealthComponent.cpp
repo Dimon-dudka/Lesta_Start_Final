@@ -43,6 +43,10 @@ double UHealthComponent::GetHP() const {
 void UHealthComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (GetHPValue.IsBound()) {
+		GetHPValue.Broadcast(Health);
+	}
 }
 
 void UHealthComponent::SetHP_Implementation(const double& HP) {

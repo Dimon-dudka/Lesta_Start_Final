@@ -20,7 +20,7 @@ UHPPrintComponent::UHPPrintComponent()
 }
 
 void UHPPrintComponent::SetupHealthPoints(double HP) {
-	TextRender->SetText(FText::FromString(LexToSanitizedString(((static_cast<int>(HP))/5)*5) + " HP"));
+	TextRender->SetText(FText::FromString(LexToSanitizedString(static_cast<int>(HP)) + " HP"));
 }
 
 void UHPPrintComponent::BeginPlay()
