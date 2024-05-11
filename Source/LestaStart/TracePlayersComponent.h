@@ -17,7 +17,6 @@ public:
 	UTracePlayersComponent();
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FReturnHitDelegate, FHitResult, HitResult);
-	//UPROPERTY(Replicated)
 	FReturnHitDelegate HitDelegate;
 
 	UPROPERTY(EditAnywhere,Replicated)

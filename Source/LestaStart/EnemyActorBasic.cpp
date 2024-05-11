@@ -7,7 +7,6 @@ AEnemyActorBasic::AEnemyActorBasic()
 
 	bReplicates = true;
 	SetReplicateMovement(true);
-	//NetUpdateFrequency = 15.0;
 
 	Box = CreateDefaultSubobject<UBoxComponent>(TEXT("Box"));
 	SetRootComponent(Box);
@@ -27,8 +26,6 @@ AEnemyActorBasic::AEnemyActorBasic()
 	PrintHP = CreateDefaultSubobject<UHPPrintComponent>(TEXT("HP Print"));
 	PrintHP->SetupAttachment(RootComponent);
 	PrintHP->SetupHealthPoints(Health->GetHP());
-
-	//Health->GetHPValue.AddDynamic(PrintHP, &UHPPrintComponent::SetupHealthPoints);
 
 	GuardComp = CreateDefaultSubobject<UEnemyGuardComonent>(TEXT("Guardian Behavior"));
 	GuardComp->NewPosDelegate.AddDynamic(this, &AEnemyActorBasic::GetNewLocation);
@@ -69,6 +66,7 @@ void AEnemyActorBasic::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(AEnemyActorBasic, Box);
 	DOREPLIFETIME(AEnemyActorBasic, LazerShootComp);
 	DOREPLIFETIME(AEnemyActorBasic, TraceComp);
+	DOREPLIFETIME(AEnemyActorBasic, Mesh);
 }
 
 void AEnemyActorBasic::GetNewLocation_Implementation(FVector NewLocation) {
@@ -87,9 +85,9 @@ void AEnemyActorBasic::GetDamage(const double& Damage) {
 }
 
 void AEnemyActorBasic::GetNullHPInfo_Implementation() {
-	LazerShootComp->DestroyComponent();
-	PrintHP->DestroyComponent();
-	Mesh->DestroyComponent();
+	if (LazerShootComp)LazerShootComp->DestroyComponent();
+	if (PrintHP)PrintHP->DestroyComponent();
+	if (Mesh)Mesh->DestroyComponent();
 
 	if (!GrenadeComponent->IsGrenade) {
 		DestroyComp->StartAnimation();
@@ -102,6 +100,8 @@ void AEnemyActorBasic::GetNullHPInfo_Implementation() {
 void AEnemyActorBasic::BeginPlay()
 {
 	Super::BeginPlay();
+
+	Mesh->SetIsReplicated(true);
 
 	PrintHP->SetupHealthPoints(Health->GetHP());
 	GuardComp->InitialSetup(GetActorLocation());

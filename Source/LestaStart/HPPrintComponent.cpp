@@ -33,15 +33,12 @@ void UHPPrintComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	APlayerController* LocalPlayerController = GetWorld()->GetFirstPlayerController();
-
-	if (LocalPlayerController)
+	if (APlayerController* LocalPlayerController = GetWorld()->GetFirstPlayerController())
 	{
-		FRotator PlayerRotation = LocalPlayerController->GetControlRotation();
-		FRotator TextRenderRotation = PlayerRotation;
+		FRotator TextRenderRotation{ LocalPlayerController->GetControlRotation() };
 		TextRenderRotation.Yaw += 180; 
 
-		TextRender->SetWorldLocation(GetOwner()->GetActorLocation() + FVector(0.0f, 0.0f, HeighAboveActor));
-		TextRender->SetWorldRotation(TextRenderRotation);
+		TextRender->SetWorldLocationAndRotation(GetOwner()->GetActorLocation() + FVector(0.0f, 0.0f, HeighAboveActor),
+			TextRenderRotation);
 	}
 }

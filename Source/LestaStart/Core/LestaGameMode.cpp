@@ -1,6 +1,4 @@
 ﻿#include "LestaGameMode.h"
-#include "Kismet/GameplayStatics.h"
-
 
 void ALestaGameMode::BeginPlay() {
 	Super::BeginPlay();

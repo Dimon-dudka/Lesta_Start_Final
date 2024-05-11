@@ -40,7 +40,6 @@ public:
 	UPROPERTY(EditAnywhere, Replicated)
 		TObjectPtr<UEnemyGuardComonent> GuardComp;
 
-	//UPROPERTY(EditAnywhere)
 	UPROPERTY(EditAnywhere)
 		TObjectPtr<UHPPrintComponent> PrintHP;
 
@@ -53,8 +52,7 @@ public:
 	UPROPERTY(EditAnywhere, Replicated)
 		TObjectPtr<UBoxComponent> Box;
 
-	//UPROPERTY(EditAnywhere, Replicated)
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 		TObjectPtr<UStaticMeshComponent> Mesh;
 
 	UPROPERTY(EditAnywhere, Replicated)

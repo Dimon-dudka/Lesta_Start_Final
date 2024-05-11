@@ -30,7 +30,7 @@ void UTraceEnemiesComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	APawn* FinalPawn{ nullptr };
 	double MinDistance{(double)INT_MAX};
 
-	FHitResult Hit;
+	FHitResult Hit,FinalHit;
 	FVector TraceStart{ GetOwner()->GetActorLocation() }, TraceEnd;
 
 	for (auto It = GetWorld()->GetControllerIterator(); It; ++It) {
@@ -45,27 +45,22 @@ void UTraceEnemiesComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 		if (Hit.Distance < MinDistance) {
 			MinDistance = Hit.Distance;
 			FinalPawn = It->Get()->GetPawn();
+			FinalHit = Hit;
 		}
 	}
 
 	if (FinalPawn) {
 
-		TraceEnd = FinalPawn->GetActorLocation();
-		
-		bBlockHit = GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, ECC_Pawn);
-
 		if (!TraceResult.IsBound())return;
 
-		if (Hit.bBlockingHit && FinalPawn ==Hit.GetActor() ) {
-			TraceResult.Broadcast(Hit);
+		if (FinalHit.bBlockingHit && FinalPawn == FinalHit.GetActor() ) {
+			TraceResult.Broadcast(FinalHit);
 		}
-		else if (Hit.bBlockingHit && FinalPawn != Hit.GetActor()) {
+		else if (FinalHit.bBlockingHit && FinalPawn != FinalHit.GetActor()) {
 			TraceResult.Broadcast({});
 		}
 	}
-	else {
-		if (!TraceResult.IsBound())return;
-
+	else if(TraceResult.IsBound()){
 		TraceResult.Broadcast({});
 	}
 }

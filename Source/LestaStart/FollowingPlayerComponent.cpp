@@ -57,9 +57,7 @@ void UFollowingPlayerComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 
 	if (!IsFollowPlayerFlag||IsAlreadyExplosion)return;
 
-	if (!Hit.IsValidBlockingHit() || Hit.Distance > VisibilityOfPlayer ) {
-		return;
-	}
+	if (!Hit.IsValidBlockingHit() || Hit.Distance > VisibilityOfPlayer) return;
 
 	if (Hit.Distance <= DistanceOfStartExplosion) {
 

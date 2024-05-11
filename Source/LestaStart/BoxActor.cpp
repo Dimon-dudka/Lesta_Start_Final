@@ -20,7 +20,6 @@ ABoxActor::ABoxActor()
 	DestroyAnimation = CreateDefaultSubobject<UDestroyAnimationComponent>(TEXT("Destroy Animation"));
 	DestroyAnimation->SetupAttachment(RootComponent);
 	DestroyAnimation->AnimationStatus.AddDynamic(this, &ABoxActor::GetDestroyed);
-
 }
 
 void ABoxActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const {
@@ -28,7 +27,7 @@ void ABoxActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 
 	DOREPLIFETIME(ABoxActor, Health);
 	DOREPLIFETIME(ABoxActor, Box);
-	//DOREPLIFETIME(ABoxActor, Mesh);
+	DOREPLIFETIME(ABoxActor, Mesh);
 	DOREPLIFETIME(ABoxActor, DestroyRadius);
 }
 

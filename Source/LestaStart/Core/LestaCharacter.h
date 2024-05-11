@@ -11,6 +11,7 @@
 #include "../GrenadeShootComponent.h"
 #include "../TracePlayersComponent.h"
 #include "../LazerShootComponent.h"
+#include "../HPPrintComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputMappingContext.h"
 #include "LestaCharacter.generated.h"
@@ -60,6 +61,9 @@ public:
 	UFUNCTION()
 		virtual void GetDamage(const double& Damage) override;
 
+	UPROPERTY(EditDefaultsOnly)
+		TObjectPtr<UHPPrintComponent> PrintHP;
+
 	UPROPERTY(EditDefaultsOnly, Replicated)
 		TObjectPtr<UHealthComponent> HealthComponent;
 
@@ -92,7 +96,7 @@ protected:
 	UFUNCTION(NetMulticast,Unreliable)
 		void EndOfReload();
 
-	UFUNCTION(Client, Unreliable)
+	UFUNCTION(NetMulticast, Unreliable)
 		void ChangeHPHUD(double HP);
 
 	UPROPERTY(EditDefaultsOnly)

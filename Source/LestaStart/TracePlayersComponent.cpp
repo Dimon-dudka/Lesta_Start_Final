@@ -14,7 +14,6 @@ void UTracePlayersComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
     DOREPLIFETIME(UTracePlayersComponent, MaxLengthOfTrace);
-    //DOREPLIFETIME(UTracePlayersComponent, HitDelegate);
 }
 
 void UTracePlayersComponent::BeginPlay()

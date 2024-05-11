@@ -9,8 +9,6 @@ ALestaCharacter::ALestaCharacter()
 {
 	NetUpdateFrequency = 20.f;
 	
-	//PlayerController = nullptr;
-
 	bReplicates = true;
 	bAlwaysRelevant = true;
 	SetReplicateMovement(true);
@@ -36,8 +34,13 @@ ALestaCharacter::ALestaCharacter()
 	TraceComp = CreateDefaultSubobject<UTracePlayersComponent>(TEXT("Trace Component"));
 	TraceComp->HitDelegate.AddDynamic(LazerComponent, &ULazerShootComponent::GetHit);
 
+	PrintHP = CreateDefaultSubobject<UHPPrintComponent>(TEXT("HP Print Component"));
+	PrintHP->SetupAttachment(RootComponent);
+	PrintHP->SetupHealthPoints(HealthComponent->GetHP());
+
 	this->ShootingStatus.AddDynamic(LazerComponent, &ULazerShootComponent::ShootStatus);
 	this->StartReload.AddDynamic(LazerComponent, &ULazerShootComponent::StartReload);
+	this->ChangeHP.AddDynamic(PrintHP, &UHPPrintComponent::SetupHealthPoints);
 }
 
 void ALestaCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps)const {
@@ -47,10 +50,8 @@ void ALestaCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 	DOREPLIFETIME(ALestaCharacter, IsShooting);
 	DOREPLIFETIME(ALestaCharacter, IsReloading);
 	DOREPLIFETIME(ALestaCharacter, GrenadeTimeCount)
-
 	DOREPLIFETIME(ALestaCharacter, StartReload);
 	DOREPLIFETIME(ALestaCharacter, ShootingStatus);
-
 	DOREPLIFETIME(ALestaCharacter, LazerComponent);
 	DOREPLIFETIME(ALestaCharacter, HealthComponent);
 	DOREPLIFETIME(ALestaCharacter, TraceComp);
