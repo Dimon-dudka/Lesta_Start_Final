@@ -38,10 +38,24 @@ void UTracePlayersComponent::TickComponent(float DeltaTime, ELevelTick TickType,
         FHitResult HitResult;
         FCollisionQueryParams TraceParams(FName(TEXT("TraceFromPlayerView")), true, PlayerController->GetPawn());
 
-        GetWorld()->LineTraceSingleByChannel(HitResult, ViewLocation, End, ECollisionChannel::ECC_Visibility, TraceParams);
+        if (GetWorld()->LineTraceSingleByChannel(HitResult, ViewLocation, End, ECollisionChannel::ECC_Visibility, TraceParams))
+        {
+            if (HitDelegate.IsBound())
+            {
+                HitDelegate.Broadcast(HitResult);
+            }
+        }
+        else
+        {
+            HitResult.ImpactPoint = End;
+            HitResult.Location = End;
+            HitResult.Normal = -ViewRotation.Vector();
+            HitResult.Distance = MaxLengthOfTrace;
 
-        if (HitDelegate.IsBound()) {
-            HitDelegate.Broadcast(HitResult);
+            if (HitDelegate.IsBound())
+            {
+                HitDelegate.Broadcast(HitResult);
+            }
         }
     }
 }
