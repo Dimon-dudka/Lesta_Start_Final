@@ -12,11 +12,6 @@ class LESTASTART_API UDoorMovementComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:
-
-	UPROPERTY(EditAnywhere, Replicated)
-	double SpeedKoef;
-
 public:	
 	UDoorMovementComponent();
 
@@ -62,4 +57,8 @@ protected:
 	//	Defines door movement direction
 	UPROPERTY(Replicated)
 		bool StatusFlag;
+
+	//	Speed of door movement
+	UPROPERTY(EditAnywhere, Replicated)
+		double SpeedKoef;
 };

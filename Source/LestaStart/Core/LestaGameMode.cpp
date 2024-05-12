@@ -25,6 +25,7 @@ void ALestaGameMode::PostLogin(APlayerController* NewPlayer) {
 }
 
 void ALestaGameMode::RestartGame() {
+	//	After game restart players will be reconnected to server using ALestaGameMode::PostLogin
 	ActivePlayers = 0;
 	
 	GetWorld()->ServerTravel(GetWorld()->GetMapName());

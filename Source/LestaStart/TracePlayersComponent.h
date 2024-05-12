@@ -19,15 +19,15 @@ public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FReturnHitDelegate, FHitResult, HitResult);
 	FReturnHitDelegate HitDelegate;
 
-	UPROPERTY(EditAnywhere,Replicated)
-		double MaxLengthOfTrace;
-
 protected:
 	virtual void BeginPlay() override;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps)const override;
 
-public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-		
+
+private:
+
+	UPROPERTY(EditAnywhere, Replicated)
+		double MaxLengthOfTrace;
 };

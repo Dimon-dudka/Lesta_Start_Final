@@ -17,13 +17,28 @@ class LESTASTART_API UEnemyGuardComonent : public UActorComponent
 public:	
 	UEnemyGuardComonent();
 
+	UFUNCTION(Server, Unreliable)
+		void InitialSetup(const FVector& Position);
+
+	UFUNCTION(Server, Unreliable)
+		void GetHitRes(FHitResult HitRes);
+
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FReturnNewPosition, FVector,NewPos);
 	UPROPERTY(Replicated)
 		FReturnNewPosition NewPosDelegate;
 
 	//	Guard - means that enemy gonna walk 
-	UPROPERTY(EditAnywhere,Replicated)
+	UPROPERTY(EditAnywhere, Replicated)
 		bool IsThisEnemyGuard;
+
+protected:
+	virtual void BeginPlay() override;
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+private:
 
 	//	Length of max security distance
 	UPROPERTY(EditAnywhere, Replicated)
@@ -46,11 +61,6 @@ public:
 	//	In what global coordinate actor will be walking while security
 	UPROPERTY(EditAnywhere, Replicated)
 		bool EnemyDirection;	// 0 - X, 1 - Y
-
-protected:
-	virtual void BeginPlay() override;
-
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	//	Is some player visible
 	UPROPERTY(Replicated)
@@ -81,13 +91,4 @@ protected:
 	//	For calculating vector on each step to target point (without Z-axis)
 	UPROPERTY(Replicated)
 		FVector2D CalculationPos;
-
-public:	
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-	UFUNCTION(Server, Unreliable)
-		void InitialSetup(const FVector& Position);
-
-	UFUNCTION(Server,Unreliable)
-		void GetHitRes(FHitResult HitRes);
 };

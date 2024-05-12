@@ -30,6 +30,11 @@ class LESTASTART_API ALestaCharacter : public ACharacter, public IActorInterface
 {
 	GENERATED_BODY()
 
+public:
+	ALestaCharacter();
+
+	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+
 private:
 
 	//	Contains info about is user still shooting or no
@@ -41,6 +46,27 @@ private:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FStartReload);
 	UPROPERTY(Replicated)
 		FStartReload StartReload;
+
+	//	Info about reloading to user HUD
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FReloadingDelegate, bool, ReloadingFlag);
+	FReloadingDelegate Reloading;
+
+	//	Info about HP to user HUD
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FChangeHPDelegate, double, HP);
+	FChangeHPDelegate ChangeHP;
+
+	//	Info about choisen weapon to user HUD
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FChangeWeaponDelegate, FString, Weapon);
+	FChangeWeaponDelegate ChangeWeapon;
+
+	UFUNCTION()
+		virtual void GetDamage(const double& Damage) override;
+
+	UFUNCTION(Server, Unreliable)
+		void KillPlayer();
+
+	UFUNCTION(NetMulticast, Unreliable)
+		void EndOfReload();
 
 	//	Flag is user shooting to block another weapon action
 	UPROPERTY(Replicated)
@@ -55,17 +81,7 @@ private:
 		WEAPON_TYPE ChoisenWeapon;
 
 	UPROPERTY(VisibleAnywhere, Category = "Player")
-		APlayerController* UserPlayerController;
-
-public:
-	ALestaCharacter();
-
-	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
-
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps)const override;
-
-	UFUNCTION()
-		virtual void GetDamage(const double& Damage) override;
+		TObjectPtr<APlayerController> UserPlayerController;
 
 	UPROPERTY(EditDefaultsOnly)
 		TObjectPtr<UHPPrintComponent> PrintHP;
@@ -82,29 +98,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, Replicated)
 		TObjectPtr<ULazerShootComponent> LazerComponent;
 
-	//	Info about reloading to user HUD
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FReloadingDelegate, bool, ReloadingFlag);
-	FReloadingDelegate Reloading;
-
-	//	Info about HP to user HUD
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FChangeHPDelegate, double, HP);
-	FChangeHPDelegate ChangeHP;
-
-	//	Info about choisen weapon to user HUD
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FChangeWeaponDelegate, FString, Weapon);
-	FChangeWeaponDelegate ChangeWeapon;
-
 protected:
 
 	//	How many time player charched grenade
 	UPROPERTY(Replicated)
 		double GrenadeTimeCount;
-
-	UFUNCTION(Server, Unreliable)
-		void KillPlayer();
-
-	UFUNCTION(NetMulticast,Unreliable)
-		void EndOfReload();
 
 	UFUNCTION(NetMulticast, Unreliable)
 		void ChangeHPHUD(double HP);
@@ -134,6 +132,8 @@ protected:
 	/** Reload Input Action **/
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 		TObjectPtr<UInputAction> ReloadInputAction;
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps)const override;
 
 	virtual void OnShootInput(const FInputActionInstance& InputActionInstance);
 	virtual void OnChangeWeaponInput(const FInputActionInstance& InputActionInstance);

@@ -18,18 +18,6 @@ class LESTASTART_API ABoxActor : public AActor, public IActorInterface
 public:	
 	ABoxActor();
 
-	UPROPERTY(EditAnywhere)
-		TObjectPtr<UDestroyAnimationComponent> DestroyAnimation;
-
-	UPROPERTY(EditAnywhere,Replicated)
-		TObjectPtr<UHealthComponent> Health;
-
-	UPROPERTY(EditAnywhere, Replicated)
-		TObjectPtr<UStaticMeshComponent> Mesh;
-
-	UPROPERTY(EditAnywhere, Replicated)
-		TObjectPtr<UBoxComponent> Box;
-
 protected:
 
 	virtual void BeginPlay() override;
@@ -38,7 +26,19 @@ protected:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-public:	
+	UPROPERTY(EditAnywhere)
+		TObjectPtr<UDestroyAnimationComponent> DestroyAnimation;
+
+	UPROPERTY(EditAnywhere, Replicated)
+		TObjectPtr<UHealthComponent> Health;
+
+	UPROPERTY(EditAnywhere, Replicated)
+		TObjectPtr<UStaticMeshComponent> Mesh;
+
+	UPROPERTY(EditAnywhere, Replicated)
+		TObjectPtr<UBoxComponent> Box;
+
+private:	
 
 	UFUNCTION()
 		virtual void GetDamage(const double& Damage) override;

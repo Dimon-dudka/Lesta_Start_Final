@@ -16,6 +16,16 @@ class LESTASTART_API UGrenadeShootComponent : public UActorComponent
 public:	
 	UGrenadeShootComponent();
 
+	UFUNCTION(Server, Unreliable)
+		void StartShoot(double UserDamageKoef, FVector PlayerStartShootPos);
+
+	UFUNCTION(Server, Unreliable)
+		void StartReload();
+
+	//	Returns time of pressing button to maximize damage
+	UFUNCTION()
+		double GetGrenadeMaxTime()const noexcept;
+
 	//	Return answer about end of reloading
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEndOfReloading);
 	UPROPERTY(Replicated)
@@ -26,15 +36,46 @@ public:
 	UPROPERTY(Replicated)
 		FEndOfExplosion EndOfExpl;
 
+	//	For enemy settings
+	UPROPERTY(EditAnywhere, Replicated)
+		bool IsGrenade;
+
+protected:
+
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
+		FActorComponentTickFunction* ThisTickFunction) override;
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps)const override;
+
+	virtual void BeginPlay() override;
+
+private:
+
+	UPROPERTY(Replicated)
+		FVector CentereExplosion;
+
+	//	Flag about is explosion going
+	UPROPERTY(Replicated)
+		bool FlagIsShoot;
+
+	UPROPERTY(Replicated)
+		bool ReloadingFlag;
+
+	//	For players grenade in range [0:1]
+	UPROPERTY(Replicated)
+		double DamageKoef;
+
+	UPROPERTY(Replicated)
+		double CurrentReloadingTime;
+
+	UPROPERTY(Replicated)
+		int32 GrenadesCountUsed;
+
 	UPROPERTY(EditAnywhere, Replicated)
 		int32 GrenadesCount;
 
 	UPROPERTY(EditAnywhere, Replicated)
 		double GrenadeReloadingTime;
-
-	//	For enemy settings
-	UPROPERTY(EditAnywhere, Replicated)
-		bool IsGrenade;
 
 	//	Time of pressing button to maximize damage
 	UPROPERTY(EditAnywhere, Replicated)
@@ -50,46 +91,6 @@ public:
 	UPROPERTY(EditAnywhere, Replicated)
 		double MaxDamageLen;
 
-protected:
-
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
-		FActorComponentTickFunction* ThisTickFunction) override;
-
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps)const override;
-
-	virtual void BeginPlay() override;
-
-	UPROPERTY(Replicated)
-		FVector CentereExplosion;
-
-	//	Flag about is explosion going
-	UPROPERTY(Replicated)
-		bool FlagIsShoot;
-
-	UPROPERTY(Replicated)
-		bool ReloadingFlag;
-	
-	double CurrentAnimationRadius;
-
-	//	For players grenade in range [0:1]
-	UPROPERTY(Replicated)
-		double DamageKoef;
-
-	UPROPERTY(Replicated)
-		double CurrentReloadingTime;
-
-	UPROPERTY(Replicated)
-		int32 GrenadesCountUsed;
-
-public:	
-
-	UFUNCTION(Server,Unreliable)
-		void StartShoot(double UserDamageKoef,FVector PlayerStartShootPos);
-
-	UFUNCTION(Server, Unreliable)
-		void StartReload();
-
-	//	Returns time of pressing button to maximize damage
-	UFUNCTION()
-		double GetGrenadeMaxTime()const noexcept;
+	UPROPERTY()
+		double CurrentAnimationRadius;
 };

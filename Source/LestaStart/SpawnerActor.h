@@ -14,14 +14,17 @@ class LESTASTART_API ASpawnerActor : public AActor
 {
 	GENERATED_BODY()
 
+public:
+	ASpawnerActor();
+
 private:
+
+	UFUNCTION()
+		FTransform SpawnPointTransform();
 
 	//	Is actor spawned yet
 	UPROPERTY(Replicated)
 		bool SpawnFlag;
-	
-public:	
-	ASpawnerActor();
 
 	UPROPERTY(EditDefaultsOnly, Replicated)
 		TObjectPtr<USpawnerComponent> Spawner;
@@ -41,9 +44,6 @@ protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps)const override;
 
 	virtual void BeginPlay() override;
-
-	UFUNCTION()
-		FTransform SpawnPointTransform();
 
 	UFUNCTION()
 		void OverlapBegin(class UPrimitiveComponent* HitComp, class AActor* OtherActor,

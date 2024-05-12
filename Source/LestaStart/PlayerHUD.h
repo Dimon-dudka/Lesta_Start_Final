@@ -16,10 +16,6 @@ public:
 
 	APlayerHUD();
 
-	virtual void BeginPlay() override;
-
-	virtual void DrawHUD() override;
-
 	UFUNCTION()
 		void SetReloadingText(bool flag);
 
@@ -31,6 +27,11 @@ public:
 
 protected:
 	
+	virtual void BeginPlay() override;
+
+	virtual void DrawHUD() override;
+
+private:
 	UPROPERTY(EditAnywhere)
 		FString HPText;
 

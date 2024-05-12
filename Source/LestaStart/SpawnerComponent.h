@@ -16,14 +16,14 @@ public:
 	USpawnerComponent();
 
 	UPROPERTY(EditAnywhere,Replicated)
-		UClass* SpawnActorType {nullptr};
+		TObjectPtr<UClass> SpawnActorType {nullptr};
 
 	DECLARE_DYNAMIC_DELEGATE_RetVal(FTransform, FGetSpawnTransform);
 	UPROPERTY(Replicated)
 		FGetSpawnTransform GetSpawnTransform;
 
 	UPROPERTY(EditAnywhere, Replicated)
-		AActor* SpawnActor;
+		TObjectPtr <AActor> SpawnActor;
 
 	UFUNCTION(Server,Unreliable)
 		void SpawningActor();

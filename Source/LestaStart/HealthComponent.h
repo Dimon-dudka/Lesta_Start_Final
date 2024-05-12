@@ -15,8 +15,17 @@ class LESTASTART_API UHealthComponent : public UActorComponent
 public:	
 	UHealthComponent();
 
-	UPROPERTY(EditAnywhere, Replicated)
-		double Health;
+	//	Become damage API
+	UFUNCTION(Server, Unreliable)
+		void BecomeDamage(const double& BecomeHPDamage);
+
+	//	Return HP for actor print
+	UFUNCTION()
+		double GetHP()const;
+
+	//	Initial HP setup
+	UFUNCTION(Server, Unreliable)
+		void SetHP(const double& HP);
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FGetHPValue, double, HP);
 	UPROPERTY(Replicated)
@@ -32,16 +41,8 @@ protected:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps)const override;
 
-public:	
-	//	Become damage API
-	UFUNCTION(Server, Unreliable)
-		void BecomeDamage(const double& BecomeHPDamage);
+private:
 
-	//	Return HP for actor print
-	UFUNCTION()
-		double GetHP()const;
-
-	//	Initial HP setup
-	UFUNCTION(Server, Unreliable)
-		void SetHP(const double& HP);	
+	UPROPERTY(EditAnywhere, Replicated)
+		double Health;
 };

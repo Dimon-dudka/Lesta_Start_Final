@@ -24,6 +24,25 @@ class LESTASTART_API AEnemyActorBasic : public AActor , public IActorInterface
 public:	
 	AEnemyActorBasic();
 
+private:
+
+	//	Destroy actor after all necessaryes procedures
+	UFUNCTION(Server, Unreliable)
+		void GetDestroyed();
+
+	//	For update HP text above actor
+	UFUNCTION(NetMulticast, Unreliable)
+		void ChangeHP(double HP);
+
+	UFUNCTION(Server, Unreliable)
+		void GetNewLocation(FVector NewLocation);
+
+	UFUNCTION(NetMulticast, Unreliable)
+		void GetNullHPInfo();
+
+	UFUNCTION()
+		virtual void GetDamage(const double& Damage) override;
+
 	//	To change the HP label above the actor.
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FChangeHPUIEnemy, double, HP);
 	FChangeHPUIEnemy ChangeHPDelegate;
@@ -45,6 +64,7 @@ public:
 	UPROPERTY(EditAnywhere, Replicated)
 		TObjectPtr<UEnemyGuardComonent> GuardComp;
 
+	//	Prints HP above actor
 	UPROPERTY(EditAnywhere)
 		TObjectPtr<UHPPrintComponent> PrintHP;
 
@@ -72,23 +92,4 @@ protected:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void BeginPlay() override;
-
-	//	Destroy actor after all necessaryes procedures
-	UFUNCTION(Server, Unreliable)
-		void GetDestroyed();
-
-	//	For update HP text above actor
-	UFUNCTION(NetMulticast, Unreliable)
-		void ChangeHP(double HP);
-
-public:	
-
-	UFUNCTION(Server, Unreliable)
-		void GetNewLocation(FVector NewLocation);
-
-	UFUNCTION(NetMulticast, Unreliable)
-		void GetNullHPInfo();
-
-	UFUNCTION()
-		virtual void GetDamage(const double& Damage) override;
 };

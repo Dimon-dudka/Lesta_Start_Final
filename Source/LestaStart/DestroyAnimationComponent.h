@@ -19,14 +19,6 @@ public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEndOfAnimation);
 	FEndOfAnimation AnimationStatus;
 
-	//	Destroy animation max radius
-	UPROPERTY(EditAnywhere)
-		double ExplosionRadius;
-
-	//	Speed of animation playing
-	UPROPERTY(EditAnywhere)
-		double AnimationSpeed;
-
 	UFUNCTION()
 		void StartAnimation();
 
@@ -37,9 +29,18 @@ protected:
 
 	virtual void BeginPlay() override;
 
+	//	Destroy animation max radius
+	UPROPERTY(EditAnywhere)
+		double ExplosionRadius;
+
+	//	Speed of animation playing
+	UPROPERTY(EditAnywhere)
+		double AnimationSpeed;
+
 	//	Is the animation over
 	bool DestroyFlag;
 
 	//	Current animation radius
 	double CurrentRadius;
+
 };

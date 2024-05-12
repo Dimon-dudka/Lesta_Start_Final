@@ -17,11 +17,28 @@ class LESTASTART_API ULazerShootComponent : public UActorComponent
 public:	
 	ULazerShootComponent();
 
+	UFUNCTION(Server, Unreliable)
+		void GetHit(FHitResult HitRes);
+
+	UFUNCTION(Server, Unreliable)
+		void StartReload();
+
+	UFUNCTION(Server, Unreliable)
+		void ShootStatus(bool Flag);
+
 	//	Info about end of reloading
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEndOfReloading);
 	UPROPERTY(Replicated)
 		FEndOfReloading IsReload;
 
+protected:
+	virtual void BeginPlay() override;
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps)const override;
+
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+private: 
 	//	The setting is about whether the actor should shoot
 	UPROPERTY(EditAnywhere, Replicated)
 		bool MustShoot;
@@ -43,11 +60,6 @@ public:
 	UPROPERTY(EditAnywhere, Replicated)
 		double MaxLength;
 
-protected:
-	virtual void BeginPlay() override;
-
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps)const override;
-
 	UPROPERTY(Replicated)
 		double CurrentShootingTime;
 
@@ -62,16 +74,4 @@ protected:
 
 	UPROPERTY(Replicated)
 		bool IsReloading;
-
-public:	
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-	UFUNCTION(Server, Unreliable)
-		void GetHit(FHitResult HitRes);
-
-	UFUNCTION(Server, Unreliable)
-		void StartReload();
-
-	UFUNCTION(Server, Unreliable)
-		void ShootStatus(bool Flag);
 };

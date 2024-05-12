@@ -16,15 +16,6 @@ class LESTASTART_API ADoorActor : public AActor
 public:	
 	ADoorActor();
 
-	UPROPERTY(EditAnywhere)
-		TObjectPtr<UStaticMeshComponent> Mesh;
-
-	//	Area within starting overlaps to open/close the door
-	UPROPERTY(EditAnywhere, Replicated)
-		TObjectPtr<UBoxComponent> OpeningArea;
-
-	UPROPERTY(EditAnywhere, Replicated)
-		TObjectPtr<UDoorMovementComponent> DoorMove;
 
 protected:
 	virtual void Tick(float DeltaTime) override;
@@ -44,4 +35,16 @@ protected:
 	UFUNCTION(Server, Unreliable)
 		void CloseDoor(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 			UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+private:
+
+	UPROPERTY(EditAnywhere)
+		TObjectPtr<UStaticMeshComponent> Mesh;
+
+	//	Area within starting overlaps to open/close the door
+	UPROPERTY(EditAnywhere, Replicated)
+		TObjectPtr<UBoxComponent> OpeningArea;
+
+	UPROPERTY(EditAnywhere, Replicated)
+		TObjectPtr<UDoorMovementComponent> DoorMove;
 };

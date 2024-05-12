@@ -16,6 +16,16 @@ class LESTASTART_API UHPPrintComponent : public USceneComponent
 public:	
 	UHPPrintComponent();
 
+	UFUNCTION()
+		void SetupHealthPoints(double HP);
+
+protected:
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	virtual void BeginPlay() override;
+
+private:
+
 	UPROPERTY(EditAnywhere)
 		double HeighAboveActor;
 
@@ -23,15 +33,5 @@ public:
 		double TextSize;
 
 	UPROPERTY(EditDefaultsOnly)
-		TObjectPtr<UTextRenderComponent> TextRender;
-
-protected:
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-	virtual void BeginPlay() override;
-
-public:	
-
-	UFUNCTION()
-		void SetupHealthPoints(double HP);
+		TObjectPtr<UTextRenderComponent> TextRender;	
 };
